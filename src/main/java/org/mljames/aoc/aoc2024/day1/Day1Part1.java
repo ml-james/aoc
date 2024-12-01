@@ -1,4 +1,4 @@
-package org.mljames.aoc.aoc2024;
+package org.mljames.aoc.aoc2024.day1;
 
 import org.mljames.aoc.PuzzleInputReader;
 
