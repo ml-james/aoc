@@ -24,14 +24,7 @@ public class Day1Part2
             listA.add(Integer.parseInt(row[0]));
 
             final int listBValue = Integer.parseInt(row[1]);
-            if (listBValueOccurrences.containsKey(listBValue))
-            {
-                listBValueOccurrences.put(listBValue, listBValueOccurrences.get(listBValue) + 1);
-            }
-            else
-            {
-                listBValueOccurrences.put(listBValue, 1);
-            }
+            listBValueOccurrences.compute(listBValue, (key, count) -> (count == null) ? 1 : count + 1);
         }
 
         int similarity = 0;
