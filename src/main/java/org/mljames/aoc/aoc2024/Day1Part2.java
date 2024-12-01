@@ -15,7 +15,7 @@ public class Day1Part2
 
     public static void main(String[] args)
     {
-        final List<String[]> input = PuzzleInputReader.readInput("2024/day1/part2/puzzle_input.txt");
+        final List<String[]> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt");
 
         final List<Integer> listA = new ArrayList<>();
         final Map<Integer, Integer> listBValueOccurrences = new HashMap<>();
