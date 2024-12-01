@@ -5,11 +5,16 @@ import org.mljames.aoc.PuzzleInputReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Day1Part1
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day1Part1.class);
+
     public static void main(String[] args)
     {
-        final List<String[]> input = PuzzleInputReader.readInput("2024/day1/puzzle_input.txt");
+        final List<String[]> input = PuzzleInputReader.readInput("2024/day1/part1/puzzle_input.txt");
 
         final List<Integer> listA = new ArrayList<>();
         final List<Integer> listB = new ArrayList<>();
@@ -30,6 +35,6 @@ public class Day1Part1
             distance += Math.abs(sortedListA.get(i) - sortedListB.get(i));
         }
 
-        System.out.printf("Distance between lists is: %s%n", distance);
+        LOGGER.info("Distance between lists is: {}", distance);
     }
 }

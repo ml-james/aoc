@@ -1,6 +1,8 @@
 package org.mljames.aoc.aoc2024;
 
 import org.mljames.aoc.PuzzleInputReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +11,8 @@ import java.util.Map;
 
 public class Day1Part2
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day1Part2.class);
+
     public static void main(String[] args)
     {
         final List<String[]> input = PuzzleInputReader.readInput("2024/day1/part2/puzzle_input.txt");
@@ -36,6 +40,6 @@ public class Day1Part2
             similarity += value * listBValueOccurrences.getOrDefault(value, 0);
         }
 
-        System.out.printf("Similarity between lists is: %s%n", similarity);
+        LOGGER.info("Similarity between lists is: {}", similarity);
     }
 }
