@@ -19,7 +19,7 @@ public class Day2Part2
         int safeCount = 0;
         for (final List<Integer> row : input)
         {
-            if (isRowTolerablySafe(row))
+            if (isListTolerablySafe(row))
             {
                 safeCount += 1;
             }
@@ -28,7 +28,7 @@ public class Day2Part2
         LOGGER.info("The number of reports that are safe is equal to: {}", safeCount);
     }
 
-    private static boolean isRowTolerablySafe(final List<Integer> row)
+    private static boolean isListTolerablySafe(final List<Integer> row)
     {
         for (int i = 0; i < row.size(); i++)
         {
