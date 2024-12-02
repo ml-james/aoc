@@ -15,15 +15,15 @@ public class Day1Part2
 
     public static void main(String[] args)
     {
-        final List<String[]> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt");
+        final List<List<Integer>> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt", "\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
         final Map<Integer, Integer> listBValueOccurrences = new HashMap<>();
-        for (final String[] row : input)
+        for (final List<Integer> row : input)
         {
-            listA.add(Integer.parseInt(row[0]));
+            listA.add(row.get(0));
 
-            final int listBValue = Integer.parseInt(row[1]);
+            final int listBValue = row.get(1);
             listBValueOccurrences.compute(listBValue, (key, count) -> (count == null) ? 1 : count + 1);
         }
 

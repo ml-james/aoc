@@ -14,14 +14,14 @@ public class Day1Part1
 
     public static void main(String[] args)
     {
-        final List<String[]> input = PuzzleInputReader.readInput("aoc2024/day1/part1/puzzle_input.txt");
+        final List<List<Integer>> input = PuzzleInputReader.readInput("aoc2024/day1/part1/puzzle_input.txt", "\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
         final List<Integer> listB = new ArrayList<>();
-        for (final String[] row : input)
+        for (final List<Integer> row : input)
         {
-            listA.add(Integer.parseInt(row[0]));
-            listB.add(Integer.parseInt(row[1]));
+            listA.add(row.get(0));
+            listB.add(row.get(1));
         }
 
         final List<Integer> sortedListA = listA.stream().sorted().toList();
