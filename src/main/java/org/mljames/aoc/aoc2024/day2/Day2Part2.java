@@ -5,26 +5,43 @@ import org.mljames.aoc.aoc2024.day1.Day1Part1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Day2Part1
+public class Day2Part2
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Day1Part1.class);
 
     public static void main(String[] args)
     {
-        final List<List<Integer>> input = PuzzleInputReader.readInput("aoc2024/day2/part1/puzzle_input.txt", "\\s{1}");
+        final List<List<Integer>> input = PuzzleInputReader.readInput("aoc2024/day2/part2/puzzle_input.txt", "\\s{1}");
 
         int safeCount = 0;
         for (final List<Integer> row : input)
         {
-            if (isListSafe(row))
+            if (isRowTolerablySafe(row))
             {
                 safeCount += 1;
             }
         }
 
         LOGGER.info("The number of reports that are safe is equal to: {}", safeCount);
+    }
+
+    private static boolean isRowTolerablySafe(final List<Integer> row)
+    {
+        for (int i = 0; i < row.size(); i++)
+        {
+            final List<Integer> rowCopy = new ArrayList<>(row);
+            // shallow copy is fine here
+            rowCopy.remove(i);
+
+            if (isListSafe(rowCopy))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isListSafe(final List<Integer> row)
