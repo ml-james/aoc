@@ -9,7 +9,8 @@ import java.util.List;
 
 public class Day2Part1
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Day1Part1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day2Part1.class);
+    private static final int TOLERANCE = 3;
 
     public static void main(String[] args)
     {
@@ -29,11 +30,11 @@ public class Day2Part1
 
     private static boolean isListSafe(final List<Integer> row)
     {
-        int comparatorRunningTotal = 0;
+        int comparisonScoreTotal = 0;
         for (int i = 0; i < row.size() - 1; i++)
         {
-            comparatorRunningTotal += compare(row.get(i), row.get(i + 1)).value;
-            if (Math.abs(comparatorRunningTotal) != i + 1)
+            comparisonScoreTotal += compareLevels(row.get(i), row.get(i + 1)).score;
+            if (Math.abs(comparisonScoreTotal) != i + 1)
             {
                 return false;
             }
@@ -41,11 +42,11 @@ public class Day2Part1
         return true;
     }
 
-    private static LevelDelta compare(final Integer l1, final Integer l2)
+    private static LevelDelta compareLevels(final Integer level1, final Integer level2)
     {
-        if (l1 > l2)
+        if (level1 > level2)
         {
-            if (l1 - l2 > 3)
+            if (level1 - level2 > TOLERANCE)
             {
                 return LevelDelta.INTOLERABLE_INCREASE;
             }
@@ -54,9 +55,9 @@ public class Day2Part1
                 return LevelDelta.TOLERABLE_INCREASE;
             }
         }
-        if (l2 > l1)
+        if (level2 > level1)
         {
-            if (l2 - l1 > 3)
+            if (level2 - level1 > TOLERANCE)
             {
                 return  LevelDelta.INTOLERABLE_DECREASE;
             }
@@ -76,11 +77,11 @@ public class Day2Part1
         INTOLERABLE_INCREASE(Integer.MAX_VALUE),
         INTOLERABLE_DECREASE(Integer.MIN_VALUE);
 
-        private final int value;
+        private final int score;
 
-        LevelDelta(final int value)
+        LevelDelta(final int score)
         {
-            this.value = value;
+            this.score = score;
         }
     }
 }
