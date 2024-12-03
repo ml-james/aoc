@@ -1,11 +1,11 @@
 package org.mljames.aoc.aoc2024.day2;
 
 import org.mljames.aoc.PuzzleInputReader;
-import org.mljames.aoc.aoc2024.day1.Day1Part1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Day2Part1
 {
@@ -14,10 +14,10 @@ public class Day2Part1
 
     public static void main(String[] args)
     {
-        final List<List<Integer>> input = PuzzleInputReader.readInput("aoc2024/day2/part1/puzzle_input.txt", "\\s{1}");
+        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day2/part1/puzzle_input.txt", Optional.of("\\s{1}"));
 
         int safeCount = 0;
-        for (final List<Integer> row : input)
+        for (final List<String> row : input)
         {
             if (isListSafe(row))
             {
@@ -28,12 +28,12 @@ public class Day2Part1
         LOGGER.info("The number of reports that are safe is equal to: {}", safeCount);
     }
 
-    private static boolean isListSafe(final List<Integer> row)
+    private static boolean isListSafe(final List<String> row)
     {
         int comparisonScoreTotal = 0;
         for (int i = 0; i < row.size() - 1; i++)
         {
-            comparisonScoreTotal += compareLevels(row.get(i), row.get(i + 1)).score;
+            comparisonScoreTotal += compareLevels(Integer.parseInt(row.get(i)), Integer.parseInt(row.get(i + 1))).score;
             if (Math.abs(comparisonScoreTotal) != i + 1)
             {
                 return false;

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Day1Part2
 {
@@ -15,15 +16,15 @@ public class Day1Part2
 
     public static void main(String[] args)
     {
-        final List<List<Integer>> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt", "\\s{3}");
+        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt", Optional.of("\\s{3}"));
 
         final List<Integer> listA = new ArrayList<>();
         final Map<Integer, Integer> listBValueOccurrences = new HashMap<>();
-        for (final List<Integer> row : input)
+        for (final List<String> row : input)
         {
-            listA.add(row.get(0));
+            listA.add(Integer.parseInt(row.get(0)));
 
-            final int listBValue = row.get(1);
+            final int listBValue = Integer.parseInt(row.get(1));
             listBValueOccurrences.compute(listBValue, (key, count) -> (count == null) ? 1 : count + 1);
         }
 
