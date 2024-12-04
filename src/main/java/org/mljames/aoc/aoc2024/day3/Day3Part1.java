@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class Day3Part1
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Day1Part1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day3Part1.class);
     private static final String REGEX = "mul\\(([0-9]{1,3}),([0-9]{1,3})\\)";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
