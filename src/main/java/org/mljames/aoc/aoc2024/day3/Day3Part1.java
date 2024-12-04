@@ -1,13 +1,14 @@
 package org.mljames.aoc.aoc2024.day3;
 
 import org.mljames.aoc.PuzzleInputReader;
-import org.mljames.aoc.aoc2024.day1.Day1Part1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Day3Part1
 {
@@ -19,19 +20,15 @@ public class Day3Part1
     {
         final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day3/part1/puzzle_input.txt");
 
+        final String inputConcat = input.stream().flatMap(Collection::stream).collect(Collectors.joining(""));
+
         int sum = 0;
-        for (final List<String> row : input)
+        final Matcher matcher = PATTERN.matcher(inputConcat);
+        while (matcher.find())
         {
-            assert row.size() == 1;
-
-            final Matcher matcher = PATTERN.matcher(row.get(0));
-
-            while (matcher.find())
-            {
-                final int lhs = Integer.parseInt(matcher.group(1));
-                final int rhs = Integer.parseInt(matcher.group(2));
-                sum += lhs * rhs;
-            }
+            final int lhs = Integer.parseInt(matcher.group(1));
+            final int rhs = Integer.parseInt(matcher.group(2));
+            sum += lhs * rhs;
         }
 
         LOGGER.info("Result of all of the multiplications is equal to: {}.", sum);
