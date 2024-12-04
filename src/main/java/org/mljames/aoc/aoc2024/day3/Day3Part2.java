@@ -48,34 +48,34 @@ public class Day3Part2
     private static List<Region> findEnabledRegions(final String input)
     {
         boolean currentlyEnabled = true;
-        int enabledRegionStart = 0;
+        int enabledRegionStartIndex = 0;
         final List<Region> enabledRegions = new ArrayList<>();
-        while (enabledRegionStart >= 0)
+        while (enabledRegionStartIndex >= 0)
         {
             if (currentlyEnabled)
             {
-                int maybeEnabledRegionEnd = input.substring(enabledRegionStart).indexOf(DONT);
-                if (maybeEnabledRegionEnd == -1)
+                int maybeEnabledRegionEndIndex = input.substring(enabledRegionStartIndex).indexOf(DONT);
+                if (maybeEnabledRegionEndIndex == -1)
                 {
-                    enabledRegions.add(new Region(enabledRegionStart, input.length()));
-                    enabledRegionStart = -1;
+                    enabledRegions.add(new Region(enabledRegionStartIndex, input.length()));
+                    enabledRegionStartIndex = -1;
                 }
                 else
                 {
-                    final int enableRegionEnd = enabledRegionStart + maybeEnabledRegionEnd;
-                    enabledRegions.add(new Region(enabledRegionStart, enableRegionEnd));
-                    enabledRegionStart += maybeEnabledRegionEnd;
+                    final int enabledRegionEndIndex = enabledRegionStartIndex + maybeEnabledRegionEndIndex;
+                    enabledRegions.add(new Region(enabledRegionStartIndex, enabledRegionEndIndex));
+                    enabledRegionStartIndex += maybeEnabledRegionEndIndex;
                     currentlyEnabled = false;
                 }
             }
             else
             {
-                final int maybeEnableRegionStart = input.substring(enabledRegionStart).indexOf(DO);
-                if (maybeEnableRegionStart == -1)
+                final int maybeEnabledRegionStartIndex = input.substring(enabledRegionStartIndex).indexOf(DO);
+                if (maybeEnabledRegionStartIndex == -1)
                 {
-                    enabledRegionStart = -1;
+                    enabledRegionStartIndex = -1;
                 }
-                enabledRegionStart += maybeEnableRegionStart;
+                enabledRegionStartIndex += maybeEnabledRegionStartIndex;
                 currentlyEnabled = true;
             }
         }
