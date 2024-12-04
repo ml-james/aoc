@@ -72,7 +72,7 @@ public class Day3Part2
     private static List<Region> findEnabledRegions(
             final List<Integer> doIndexes,
             final List<Integer> dontIndexes,
-            final int regionSpan)
+            final int lastIndex)
     {
         boolean currentlyEnabled = true;
         int regionStart = 0;
@@ -84,7 +84,7 @@ public class Day3Part2
                 int regionEnd = findNextNearestValue(regionStart, dontIndexes);
                 if (regionEnd == -1)
                 {
-                    enabledRegions.add(new Region(regionStart, regionSpan));
+                    enabledRegions.add(new Region(regionStart, lastIndex));
                 }
                 else
                 {
