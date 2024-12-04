@@ -16,7 +16,7 @@ public class Day3Part2
     private static final Logger LOGGER = LoggerFactory.getLogger(Day3Part2.class);
 
     private static final String REGEX_MUL = "mul\\(([0-9]{1,3}),([0-9]{1,3})\\)";
-    private static final Pattern PATTERN = Pattern.compile(REGEX_MUL);
+    private static final Pattern PATTERN_MUL = Pattern.compile(REGEX_MUL);
 
     private static final String DO = "do()";
     private static final String DONT = "don't()";
@@ -27,15 +27,12 @@ public class Day3Part2
 
         final String inputConcat = input.stream().flatMap(Collection::stream).collect(Collectors.joining(""));
 
-        final List<Integer> dos = findIndexesOf(DO, inputConcat);
-        final List<Integer> donts = findIndexesOf(DONT, inputConcat);
-
-        final List<Region> enabledRegions = findEnabledRegions(dos, donts, inputConcat.length());
+        final List<Region> enabledRegions = findEnabledRegions(inputConcat);
 
         int sum = 0;
         for (final Region region : enabledRegions)
         {
-            final Matcher matcher = PATTERN.matcher(inputConcat).region(region.start, region.end);
+            final Matcher matcher = PATTERN_MUL.matcher(inputConcat).region(region.start, region.end);
 
             while (matcher.find())
             {
@@ -48,70 +45,41 @@ public class Day3Part2
         LOGGER.info("Result of all of the multiplications within enabled regions is equal to: {}.", sum);
     }
 
-    private static List<Integer> findIndexesOf(final String pattern, final String line)
-    {
-        int currentIndex = 0;
-        final List<Integer> indexes = new ArrayList<>();
-        while (currentIndex >= 0)
-        {
-            int indexOf = line.substring(currentIndex).indexOf(pattern);
-            if (indexOf != -1)
-            {
-                currentIndex += indexOf;
-                indexes.add(currentIndex);
-                currentIndex = currentIndex + pattern.length();
-            }
-            else
-            {
-                currentIndex = -1;
-            }
-        }
-        return indexes;
-    }
-
-    private static List<Region> findEnabledRegions(
-            final List<Integer> doIndexes,
-            final List<Integer> dontIndexes,
-            final int lastIndex)
+    private static List<Region> findEnabledRegions(final String input)
     {
         boolean currentlyEnabled = true;
-        int regionStart = 0;
+        int enabledRegionStart = 0;
         final List<Region> enabledRegions = new ArrayList<>();
-        while (regionStart >= 0)
+        while (enabledRegionStart >= 0)
         {
             if (currentlyEnabled)
             {
-                int regionEnd = findNextNearestValue(regionStart, dontIndexes);
-                if (regionEnd == -1)
+                int maybeEnabledRegionEnd = input.substring(enabledRegionStart).indexOf(DONT);
+                if (maybeEnabledRegionEnd == -1)
                 {
-                    enabledRegions.add(new Region(regionStart, lastIndex));
+                    enabledRegions.add(new Region(enabledRegionStart, input.length()));
+                    enabledRegionStart = -1;
                 }
                 else
                 {
-                    enabledRegions.add(new Region(regionStart, regionEnd));
+                    final int enableRegionEnd = enabledRegionStart + maybeEnabledRegionEnd;
+                    enabledRegions.add(new Region(enabledRegionStart, enableRegionEnd));
+                    enabledRegionStart += maybeEnabledRegionEnd;
+                    currentlyEnabled = false;
                 }
-                regionStart = regionEnd;
-                currentlyEnabled = false;
             }
             else
             {
-                regionStart = findNextNearestValue(regionStart, doIndexes);
+                final int maybeEnableRegionStart = input.substring(enabledRegionStart).indexOf(DO);
+                if (maybeEnableRegionStart == -1)
+                {
+                    enabledRegionStart = -1;
+                }
+                enabledRegionStart += maybeEnableRegionStart;
                 currentlyEnabled = true;
             }
         }
         return enabledRegions;
-    }
-
-    private static int findNextNearestValue(final int targetValue, final List<Integer> values)
-    {
-        for (final int value : values)
-        {
-            if (value > targetValue)
-            {
-                return value;
-            }
-        }
-        return -1;
     }
 
     private static final class Region
