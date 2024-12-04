@@ -12,12 +12,28 @@ import java.util.Optional;
 
 public class PuzzleInputReader
 {
-    public static List<List<String>> readInput(final String resource)
+    public static List<String> readInput(final String resource)
     {
-        return readInput(resource, Optional.empty());
+        try (final InputStream inputStream = PuzzleInputReader.class.getClassLoader().getResourceAsStream(resource);
+             final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream));
+             final BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+        {
+            final List<String> puzzleInput = new ArrayList<>();
+            String line = bufferedReader.readLine();
+            while (line != null && !line.isEmpty())
+            {
+                puzzleInput.add(line);
+                line = bufferedReader.readLine();
+            }
+            return puzzleInput;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not read resource file", e);
+        }
     }
 
-    public static List<List<String>> readInput(final String resource, final Optional<String> delimiterRegex)
+    public static List<List<String>> readInput(final String resource, final String delimiterRegex)
     {
         try (final InputStream inputStream = PuzzleInputReader.class.getClassLoader().getResourceAsStream(resource);
              final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream));
@@ -27,15 +43,9 @@ public class PuzzleInputReader
             String line = bufferedReader.readLine();
             while (line != null && !line.isEmpty())
             {
-                if (delimiterRegex.isPresent())
-                {
-                    final String[] spaceDelimitedLine = line.split(delimiterRegex.get());
-                    puzzleInput.add(Arrays.asList(spaceDelimitedLine));
-                }
-                else
-                {
-                    puzzleInput.add(List.of(line));
-                }
+                final String[] spaceDelimitedLine = line.split(delimiterRegex);
+                puzzleInput.add(Arrays.asList(spaceDelimitedLine));
+
                 line = bufferedReader.readLine();
             }
             return puzzleInput;

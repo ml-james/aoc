@@ -18,9 +18,9 @@ public class Day3Part1
 
     public static void main(String[] args)
     {
-        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day3/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInput("aoc2024/day3/part1/puzzle_input.txt");
 
-        final String inputConcat = input.stream().flatMap(Collection::stream).collect(Collectors.joining(""));
+        final String inputConcat = String.join("", input);
 
         int sum = 0;
         final Matcher matcher = PATTERN.matcher(inputConcat);

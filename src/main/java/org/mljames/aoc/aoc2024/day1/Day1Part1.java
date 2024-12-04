@@ -14,7 +14,7 @@ public class Day1Part1
 
     public static void main(String[] args)
     {
-        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part1/puzzle_input.txt", Optional.of("\\s{3}"));
+        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part1/puzzle_input.txt","\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
         final List<Integer> listB = new ArrayList<>();

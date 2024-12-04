@@ -23,9 +23,9 @@ public class Day3Part2
 
     public static void main(String[] args)
     {
-        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day3/part2/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInput("aoc2024/day3/part2/puzzle_input.txt");
 
-        final String inputConcat = input.stream().flatMap(Collection::stream).collect(Collectors.joining(""));
+        final String inputConcat = String.join("", input);
 
         final List<Region> enabledRegions = findEnabledRegions(inputConcat);
 
@@ -93,5 +93,4 @@ public class Day3Part2
             this.end = end;
         }
     }
-
 }
