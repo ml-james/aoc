@@ -48,34 +48,34 @@ public class Day3Part2
     private static List<Region> findEnabledRegions(final String input)
     {
         boolean currentlyEnabled = true;
-        int enabledRegionStartIndex = 0;
+        int regionStartIndex = 0;
         final List<Region> enabledRegions = new ArrayList<>();
-        while (enabledRegionStartIndex >= 0)
+        while (regionStartIndex >= 0)
         {
             if (currentlyEnabled)
             {
-                int maybeEnabledRegionEndIndex = input.substring(enabledRegionStartIndex).indexOf(DONT);
+                int maybeEnabledRegionEndIndex = input.substring(regionStartIndex).indexOf(DONT);
                 if (maybeEnabledRegionEndIndex == -1)
                 {
-                    enabledRegions.add(new Region(enabledRegionStartIndex, input.length()));
-                    enabledRegionStartIndex = -1;
+                    enabledRegions.add(new Region(regionStartIndex, input.length()));
+                    regionStartIndex = -1;
                 }
                 else
                 {
-                    final int enabledRegionEndIndex = enabledRegionStartIndex + maybeEnabledRegionEndIndex;
-                    enabledRegions.add(new Region(enabledRegionStartIndex, enabledRegionEndIndex));
-                    enabledRegionStartIndex += maybeEnabledRegionEndIndex;
+                    final int enabledRegionEndIndex = regionStartIndex + maybeEnabledRegionEndIndex;
+                    enabledRegions.add(new Region(regionStartIndex, enabledRegionEndIndex));
+                    regionStartIndex = enabledRegionEndIndex;
                     currentlyEnabled = false;
                 }
             }
             else
             {
-                final int maybeEnabledRegionStartIndex = input.substring(enabledRegionStartIndex).indexOf(DO);
+                final int maybeEnabledRegionStartIndex = input.substring(regionStartIndex).indexOf(DO);
                 if (maybeEnabledRegionStartIndex == -1)
                 {
-                    enabledRegionStartIndex = -1;
+                    regionStartIndex = -1;
                 }
-                enabledRegionStartIndex += maybeEnabledRegionStartIndex;
+                regionStartIndex += maybeEnabledRegionStartIndex;
                 currentlyEnabled = true;
             }
         }
