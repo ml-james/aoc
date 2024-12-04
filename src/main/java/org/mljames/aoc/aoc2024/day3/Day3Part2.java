@@ -54,15 +54,15 @@ public class Day3Part2
         {
             if (currentlyEnabled)
             {
-                int maybeEnabledRegionEndIndex = input.substring(regionStartIndex).indexOf(DONT);
-                if (maybeEnabledRegionEndIndex == -1)
+                int maybeEnabledRegionSubstringEndIndex = input.substring(regionStartIndex).indexOf(DONT);
+                if (maybeEnabledRegionSubstringEndIndex == -1)
                 {
                     enabledRegions.add(new Region(regionStartIndex, input.length()));
                     regionStartIndex = -1;
                 }
                 else
                 {
-                    final int enabledRegionEndIndex = regionStartIndex + maybeEnabledRegionEndIndex;
+                    final int enabledRegionEndIndex = regionStartIndex + maybeEnabledRegionSubstringEndIndex;
                     enabledRegions.add(new Region(regionStartIndex, enabledRegionEndIndex));
                     regionStartIndex = enabledRegionEndIndex;
                     currentlyEnabled = false;
@@ -70,12 +70,12 @@ public class Day3Part2
             }
             else
             {
-                final int maybeEnabledRegionStartIndex = input.substring(regionStartIndex).indexOf(DO);
-                if (maybeEnabledRegionStartIndex == -1)
+                final int maybeEnabledRegionSubstringStartIndex = input.substring(regionStartIndex).indexOf(DO);
+                if (maybeEnabledRegionSubstringStartIndex == -1)
                 {
                     regionStartIndex = -1;
                 }
-                regionStartIndex += maybeEnabledRegionStartIndex;
+                regionStartIndex += maybeEnabledRegionSubstringStartIndex;
                 currentlyEnabled = true;
             }
         }
@@ -84,10 +84,10 @@ public class Day3Part2
 
     private static final class Region
     {
-        final int start;
-        final int end;
+        private final int start;
+        private final int end;
 
-        private Region(int start, int end)
+        private Region(final int start, final int end)
         {
             this.start = start;
             this.end = end;
