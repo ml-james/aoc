@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 public class Day3Part2
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Day3Part2.class);
+
     private static final String REGEX_MUL = "mul\\(([0-9]{1,3}),([0-9]{1,3})\\)";
+    private static final Pattern PATTERN = Pattern.compile(REGEX_MUL);
+
     private static final String DO = "do()";
     private static final String DONT = "don't()";
-    private static final Pattern PATTERN = Pattern.compile(REGEX_MUL);
 
     public static void main(String[] args)
     {
