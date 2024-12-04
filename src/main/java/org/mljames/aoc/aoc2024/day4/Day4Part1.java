@@ -27,53 +27,51 @@ public class Day4Part1
         {
             for (int j = 0; j < xDimension; j++)
             {
-                xmasCount += checkHorizontal(i, j, xDimension, grid);
-                xmasCount += checkVertical(i, j, yDimension, grid);
-                xmasCount += checkDiagonals(i, j, xDimension, yDimension, grid);
+                if (i + 3 < xDimension)
+                {
+                    xmasCount += checkHorizontal(i, j, grid);
+                }
+                if (j + 3 < yDimension)
+                {
+                    xmasCount += checkVertical(i, j, grid);
+                }
+                if (i + 3 < xDimension && j + 3 < yDimension)
+                {
+                    xmasCount += checkDiagonals(i, j, grid);
+                }
             }
         }
 
         LOGGER.info("The number of times xmas appears in the crossword is {}.", xmasCount);
     }
 
-    private static int checkDiagonals(final int i, final int j, int xDimension, int yDimension, final char[][] grid)
+    private static int checkDiagonals(final int i, final int j, final char[][] grid)
     {
-        if (i + 3 < xDimension && j + 3 < yDimension)
-        {
-            final String oneDiagonal = Character.toString(grid[i][j]) + grid[i + 1][j + 1] + grid[i + 2][j + 2] + grid[i + 3][j + 3];
-            final String otherDiagonal = Character.toString(grid[i + 3][j]) + grid[i + 2][j + 1] + grid[i + 1][j + 2] + grid[i][j + 3];
+        final String oneDiagonal = Character.toString(grid[i][j]) + grid[i + 1][j + 1] + grid[i + 2][j + 2] + grid[i + 3][j + 3];
+        final String otherDiagonal = Character.toString(grid[i + 3][j]) + grid[i + 2][j + 1] + grid[i + 1][j + 2] + grid[i][j + 3];
 
-            int diagonalsTotal = 0;
-            if (oneDiagonal.equals(XMAS) || oneDiagonal.equals(SAMX))
-            {
-                diagonalsTotal += 1;
-            }
-            if (otherDiagonal.equals(XMAS) || otherDiagonal.equals(SAMX))
-            {
-                diagonalsTotal += 1;
-            }
-            return diagonalsTotal;
-        }
-        else
+        int diagonalsTotal = 0;
+        if (oneDiagonal.equals(XMAS) || oneDiagonal.equals(SAMX))
         {
-            return 0;
+            diagonalsTotal += 1;
         }
+        if (otherDiagonal.equals(XMAS) || otherDiagonal.equals(SAMX))
+        {
+            diagonalsTotal += 1;
+        }
+        return diagonalsTotal;
     }
 
     private static int checkVertical(
             final int i,
             final int j,
-            final int yDimension,
             final char[][] grid)
     {
-        if (j + 3 < yDimension)
-        {
-            final String vertical = Character.toString(grid[i][j]) + grid[i][j + 1] + grid[i][j + 2] + grid[i][j + 3];
+        final String vertical = Character.toString(grid[i][j]) + grid[i][j + 1] + grid[i][j + 2] + grid[i][j + 3];
 
-            if (vertical.equals(XMAS) || vertical.equals(SAMX))
-            {
-                return 1;
-            }
+        if (vertical.equals(XMAS) || vertical.equals(SAMX))
+        {
+            return 1;
         }
         return 0;
     }
@@ -81,24 +79,19 @@ public class Day4Part1
     private static int checkHorizontal(
             final int i,
             final int j,
-            final int xDimension,
             final char[][] grid)
     {
-        if (i + 3 < xDimension)
-        {
-            final String horizontal = Character.toString(grid[i][j]) + grid[i + 1][j] + grid[i + 2][j] + grid[i + 3][j];
+        final String horizontal = Character.toString(grid[i][j]) + grid[i + 1][j] + grid[i + 2][j] + grid[i + 3][j];
 
-            if (horizontal.equals(XMAS) || horizontal.equals(SAMX))
-            {
-                return 1;
-            }
+        if (horizontal.equals(XMAS) || horizontal.equals(SAMX))
+        {
+            return 1;
         }
         return 0;
     }
 
     private static char[][] createGrid(final List<String> input, final int xDimension, final int yDimension)
     {
-
         final char[][] grid = new char[xDimension][yDimension];
 
         for (int i = 0; i < yDimension; i++)
