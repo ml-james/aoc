@@ -17,25 +17,25 @@ public class Day4Part1
     {
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day4/part1/puzzle_input.txt");
 
-        final int xDimension = input.getFirst().length();
-        final int yDimension = input.size();
+        final int width = input.getFirst().length();
+        final int height = input.size();
 
-        final char[][] grid = createGrid(input, xDimension, yDimension);
+        final char[][] grid = createGrid(input, height, width);
 
         int xmasCount = 0;
-        for (int i = 0; i < yDimension; i++)
+        for (int i = 0; i < height; i++)
         {
-            for (int j = 0; j < xDimension; j++)
+            for (int j = 0; j < width; j++)
             {
-                if (i + 3 < xDimension)
+                if (j + XMAS.length() <= width)
                 {
                     xmasCount += checkHorizontal(i, j, grid);
                 }
-                if (j + 3 < yDimension)
+                if (i + XMAS.length() <= height)
                 {
                     xmasCount += checkVertical(i, j, grid);
                 }
-                if (i + 3 < xDimension && j + 3 < yDimension)
+                if (i + XMAS.length() <= width && j + XMAS.length() <= height)
                 {
                     xmasCount += checkDiagonals(i, j, grid);
                 }
@@ -67,7 +67,7 @@ public class Day4Part1
             final int j,
             final char[][] grid)
     {
-        final String vertical = Character.toString(grid[i][j]) + grid[i][j + 1] + grid[i][j + 2] + grid[i][j + 3];
+        final String vertical = Character.toString(grid[i][j]) + grid[i + 1][j] + grid[i + 2][j] + grid[i + 3][j];
 
         if (vertical.equals(XMAS) || vertical.equals(SAMX))
         {
@@ -81,7 +81,7 @@ public class Day4Part1
             final int j,
             final char[][] grid)
     {
-        final String horizontal = Character.toString(grid[i][j]) + grid[i + 1][j] + grid[i + 2][j] + grid[i + 3][j];
+        final String horizontal = Character.toString(grid[i][j]) + grid[i][j + 1] + grid[i][j + 2] + grid[i][j + 3];
 
         if (horizontal.equals(XMAS) || horizontal.equals(SAMX))
         {
@@ -90,15 +90,15 @@ public class Day4Part1
         return 0;
     }
 
-    private static char[][] createGrid(final List<String> input, final int xDimension, final int yDimension)
+    private static char[][] createGrid(final List<String> input, final int height, final int width)
     {
-        final char[][] grid = new char[xDimension][yDimension];
+        final char[][] grid = new char[height][width];
 
-        for (int i = 0; i < yDimension; i++)
+        for (int i = 0; i < height; i++)
         {
             final String row = input.get(i);
 
-            for (int j = 0; j < row.length(); j++)
+            for (int j = 0; j < width; j++)
             {
                 grid[i][j] = row.charAt(j);
             }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Day4Part2
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Day4Part1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day4Part2.class);
 
     private static final String MAS = "MAS";
     private static final String SAM = "SAM";
@@ -17,17 +17,17 @@ public class Day4Part2
     {
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day4/part2/puzzle_input.txt");
 
-        final int xDimension = input.getFirst().length();
-        final int yDimension = input.size();
+        final int width = input.getFirst().length();
+        final int height = input.size();
 
-        final char[][] grid = createGrid(input, xDimension, yDimension);
+        final char[][] grid = createGrid(input, height, width);
 
         int xmasCount = 0;
-        for (int i = 0; i < yDimension; i++)
+        for (int i = 0; i < width; i++)
         {
-            for (int j = 0; j < xDimension; j++)
+            for (int j = 0; j < height; j++)
             {
-                if (i + 2 < xDimension && j + 2 < yDimension)
+                if (i + MAS.length() <= width && j + MAS.length() <= height)
                 {
                     xmasCount += checkDiagonals(i, j, grid);
                 }
@@ -50,11 +50,11 @@ public class Day4Part2
         return diagonalsTotal;
     }
 
-    private static char[][] createGrid(final List<String> input, final int xDimension, final int yDimension)
+    private static char[][] createGrid(final List<String> input, final int height, final int width)
     {
-        final char[][] grid = new char[xDimension][yDimension];
+        final char[][] grid = new char[height][width];
 
-        for (int i = 0; i < yDimension; i++)
+        for (int i = 0; i < height; i++)
         {
             final String row = input.get(i);
 
