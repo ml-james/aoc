@@ -32,7 +32,7 @@ public class Day5Part1
         final List<List<Integer>> goodUpdates = new ArrayList<>();
         for (final List<Integer> update : candidateUpdates)
         {
-            if (checkUpdate(update, pageOrderingRulesByPage))
+            if (isGoodUpdate(update, pageOrderingRulesByPage))
             {
                 goodUpdates.add(update);
             }
@@ -43,7 +43,7 @@ public class Day5Part1
         LOGGER.info("The sum of the middle pages for all of the valid updates is: {}.", sum);
     }
 
-    private static boolean checkUpdate(final List<Integer> update, final Map<Integer, Set<Integer>> pageOrderingRulesByPage)
+    private static boolean isGoodUpdate(final List<Integer> update, final Map<Integer, Set<Integer>> pageOrderingRulesByPage)
     {
         for (int i = update.size() - 1; i > 0; i--)
         {
