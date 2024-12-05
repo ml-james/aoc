@@ -54,7 +54,7 @@ public class Day5Part1
                 final Set<Integer> earlierPages = new HashSet<>(update.subList(0, i));
                 final Set<Integer> pageOrderingRule = pageOrderingRulesByPage.get(page);
 
-                if (anyEarlierPageAppearsInPageOrderingRule(earlierPages, pageOrderingRule))
+                if (pagesAppearInPageOrderingRule(earlierPages, pageOrderingRule))
                 {
                     return false;
                 }
@@ -63,7 +63,7 @@ public class Day5Part1
         return true;
     }
 
-    private static boolean anyEarlierPageAppearsInPageOrderingRule(final Set<Integer> earlierPages, final Set<Integer> pageOrderingRule)
+    private static boolean pagesAppearInPageOrderingRule(final Set<Integer> earlierPages, final Set<Integer> pageOrderingRule)
     {
         return pageOrderingRule.stream().anyMatch(earlierPages::contains);
     }
