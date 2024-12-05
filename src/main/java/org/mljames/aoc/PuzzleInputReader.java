@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PuzzleInputReader
 {
@@ -45,6 +46,29 @@ public class PuzzleInputReader
             {
                 final String[] spaceDelimitedLine = line.split(delimiterRegex);
                 puzzleInput.add(Arrays.asList(spaceDelimitedLine));
+
+                line = bufferedReader.readLine();
+            }
+            return puzzleInput;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not read resource file", e);
+        }
+    }
+
+    public static List<List<Integer>> readInputAsInts(final String resource, final String delimiterRegex)
+    {
+        try (final InputStream inputStream = PuzzleInputReader.class.getClassLoader().getResourceAsStream(resource);
+             final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream));
+             final BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+        {
+            final List<List<Integer>> puzzleInput = new ArrayList<>();
+            String line = bufferedReader.readLine();
+            while (line != null && !line.isEmpty())
+            {
+                final String[] delimitedLine = line.split(delimiterRegex);
+                puzzleInput.add(Arrays.stream(delimitedLine).map(Integer::parseInt).collect(Collectors.toList()));
 
                 line = bufferedReader.readLine();
             }
