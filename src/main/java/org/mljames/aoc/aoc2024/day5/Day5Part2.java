@@ -44,6 +44,14 @@ public class Day5Part2
             reformedBadUpdates.add(reformBadUpdate(update, pageOrderingRulesByPage));
         }
 
+        for (final List<Integer> reformedBadUpdate : reformedBadUpdates)
+        {
+            if (!isGoodUpdate(reformedBadUpdate, pageOrderingRulesByPage))
+            {
+                throw new RuntimeException("These should be reformed!!");
+            }
+        }
+
         final int sum = reformedBadUpdates.stream().mapToInt(Day5Part2::getMiddlePage).sum();
 
         LOGGER.info("The sum of the middle pages for all of the valid updates is: {}.", sum);
@@ -52,14 +60,17 @@ public class Day5Part2
     private static List<Integer> reformBadUpdate(final List<Integer> badUpdate, final Map<Integer, Set<Integer>> pageOrderingRulesByPage)
     {
         final Set<Integer> pagesToAllocate = new HashSet<>(badUpdate);
-        final List<Integer> reformedUpdate = new ArrayList<>();
+
+        assert pagesToAllocate.size() == badUpdate.size() : "Expecting (/hoping for) no repeated pages in an update.";
+
+        final List<Integer> reversedReformedUpdate = new ArrayList<>();
         for (int i = 0; i < badUpdate.size(); i++)
         {
             final int allocatedPage = allocatePage(badUpdate, pagesToAllocate, pageOrderingRulesByPage);
             pagesToAllocate.remove(allocatedPage);
-            reformedUpdate.add(allocatedPage);
+            reversedReformedUpdate.add(allocatedPage);
         }
-        return reformedUpdate;
+        return reversedReformedUpdate.reversed();
     }
 
     private static int allocatePage(
