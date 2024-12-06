@@ -4,11 +4,12 @@ import org.mljames.aoc.PuzzleInputReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 public class Day6Part1
 {
@@ -23,13 +24,13 @@ public class Day6Part1
 
         final Grid grid = createGrid(input, height, width);
 
-        Optional<Coordinate> currentCoordinate = grid.nextCoordinate();
+        Optional<Coordinate> currentCoordinate = grid.move();
         while (currentCoordinate.isPresent())
         {
-            currentCoordinate = grid.nextCoordinate();
+            currentCoordinate = grid.move();
         }
 
-        LOGGER.info("The number of distinct grid points visited by the guard is: {}.", grid.visited.size());
+        LOGGER.info("The number of distinct grid points visited by the guard is: {}.", grid.getNumberOfDistinctPositions());
     }
 
     private static Grid createGrid(final List<String> input, final int height, final int width)
@@ -44,19 +45,19 @@ public class Day6Part1
             {
                 if (row.charAt(j) == '^')
                 {
-                    startingCoordinate = new Coordinate(i, j, Direction.UP);
+                    startingCoordinate = new Coordinate(new Position(i, j), Direction.UP);
                 }
                 if (row.charAt(j) == '>')
                 {
-                    startingCoordinate = new Coordinate(i, j, Direction.RIGHT);
+                    startingCoordinate = new Coordinate(new Position(i, j), Direction.RIGHT);
                 }
                 if (row.charAt(j) == '<')
                 {
-                    startingCoordinate = new Coordinate(i, j, Direction.LEFT);
+                    startingCoordinate = new Coordinate(new Position(i, j), Direction.LEFT);
                 }
                 if (row.charAt(j) == 'v')
                 {
-                    startingCoordinate = new Coordinate(i, j, Direction.DOWN);
+                    startingCoordinate = new Coordinate(new Position(i, j), Direction.DOWN);
                 }
                 grid[i][j] = row.charAt(j);
             }
@@ -74,7 +75,7 @@ public class Day6Part1
         private final char[][] grid;
         private final int height;
         private final int width;
-        private final Set<Coordinate> visited;
+        private final List<Coordinate> visited;
 
         private Coordinate currentCoordinate;
 
@@ -84,24 +85,24 @@ public class Day6Part1
             this.height = height;
             this.width = width;
             this.currentCoordinate = currentCoordinate;
-            this.visited = new HashSet<>(List.of(currentCoordinate));
+            this.visited = new ArrayList<>(Collections.singleton(currentCoordinate));
         }
 
-        public Optional<Coordinate> nextCoordinate()
+        public Optional<Coordinate> move()
         {
             if (currentCoordinate.direction.equals(Direction.UP))
             {
-                if (currentCoordinate.y > 0)
+                if (currentCoordinate.getY() > 0)
                 {
-                    if (grid[currentCoordinate.y - 1][currentCoordinate.x] != '#')
+                    if (grid[currentCoordinate.getY() - 1][currentCoordinate.getX()] != '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y - 1, currentCoordinate.x, Direction.UP);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY() - 1, currentCoordinate.getX(), Direction.UP);
                         visited.add(currentCoordinate);
                         return Optional.of(currentCoordinate);
                     }
-                    else if (grid[currentCoordinate.y - 1][currentCoordinate.x] == '#')
+                    else if (grid[currentCoordinate.getY() - 1][currentCoordinate.getX()] == '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y, currentCoordinate.x, Direction.RIGHT);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.RIGHT);
                         return Optional.of(currentCoordinate);
                     }
                     else
@@ -116,17 +117,17 @@ public class Day6Part1
             }
             else if (currentCoordinate.direction.equals(Direction.RIGHT))
             {
-                if (currentCoordinate.x < width - 1)
+                if (currentCoordinate.getX() < width - 1)
                 {
-                    if (grid[currentCoordinate.y][currentCoordinate.x + 1] != '#')
+                    if (grid[currentCoordinate.getY()][currentCoordinate.getX() + 1] != '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y, currentCoordinate.x + 1, Direction.RIGHT);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() + 1, Direction.RIGHT);
                         visited.add(currentCoordinate);
                         return Optional.of(currentCoordinate);
                     }
-                    else if (grid[currentCoordinate.y][currentCoordinate.x + 1] == '#')
+                    else if (grid[currentCoordinate.getY()][currentCoordinate.getX() + 1] == '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y, currentCoordinate.x, Direction.DOWN);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.DOWN);
                         return Optional.of(currentCoordinate);
                     }
                     else
@@ -141,17 +142,17 @@ public class Day6Part1
             }
             else if (currentCoordinate.direction.equals(Direction.DOWN))
             {
-                if (currentCoordinate.y < height - 1)
+                if (currentCoordinate.getY() < height - 1)
                 {
-                    if (grid[currentCoordinate.y + 1][currentCoordinate.x] != '#')
+                    if (grid[currentCoordinate.getY() + 1][currentCoordinate.getX()] != '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y + 1, currentCoordinate.x, Direction.DOWN);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY() + 1, currentCoordinate.getX(), Direction.DOWN);
                         visited.add(currentCoordinate);
                         return Optional.of(currentCoordinate);
                     }
-                    else if (grid[currentCoordinate.y + 1][currentCoordinate.x] == '#')
+                    else if (grid[currentCoordinate.getY() + 1][currentCoordinate.getX()] == '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y, currentCoordinate.x, Direction.LEFT);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.LEFT);
                         return Optional.of(currentCoordinate);
                     }
                     else
@@ -166,17 +167,17 @@ public class Day6Part1
             }
             else if (currentCoordinate.direction.equals(Direction.LEFT))
             {
-                if (currentCoordinate.x > 0)
+                if (currentCoordinate.getX() > 0)
                 {
-                    if (grid[currentCoordinate.y][currentCoordinate.x - 1] != '#')
+                    if (grid[currentCoordinate.getY()][currentCoordinate.getX() - 1] != '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y, currentCoordinate.x - 1, Direction.LEFT);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() - 1, Direction.LEFT);
                         visited.add(currentCoordinate);
                         return Optional.of(currentCoordinate);
                     }
-                    else if (grid[currentCoordinate.y][currentCoordinate.x - 1] == '#')
+                    else if (grid[currentCoordinate.getY()][currentCoordinate.getX() - 1] == '#')
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.y, currentCoordinate.x, Direction.UP);
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.UP);
                         return Optional.of(currentCoordinate);
                     }
                     else
@@ -194,6 +195,16 @@ public class Day6Part1
                 throw new RuntimeException("Unrecognised direction!!");
             }
         }
+
+        int getNumberOfDistinctPositions()
+        {
+            return visited
+                    .stream()
+                    .map(c -> c.position)
+                    .distinct()
+                    .toList()
+                    .size();
+        }
     }
 
     private enum Direction
@@ -204,21 +215,68 @@ public class Day6Part1
         LEFT;
     }
 
-    private final static class Coordinate
+    private final static class Position
     {
         private final int y;
         private final int x;
+
+        private Position(final int y, final int x)
+        {
+            this.y = y;
+            this.x = x;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass())
+            {
+                return false;
+            }
+            final Position position = (Position) o;
+            return y == position.y && x == position.x;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(y, x);
+        }
+    }
+
+    private final static class Coordinate
+    {
+        private final Position position;
         private final Direction direction;
 
         private Coordinate(final int y, final int x, final Direction direction)
         {
-            this.y = y;
-            this.x = x;
+            this.position = new Position(y, x);
             this.direction = direction;
         }
 
+        private Coordinate(final Position position, final Direction direction)
+        {
+            this.position = position;
+            this.direction = direction;
+        }
+
+        public int getY()
+        {
+            return position.y;
+        }
+
+        public int getX()
+        {
+            return position.x;
+        }
+
         @Override
-        public boolean equals(Object o)
+        public boolean equals(final Object o)
         {
             if (this == o)
             {
@@ -229,13 +287,13 @@ public class Day6Part1
                 return false;
             }
             final Coordinate that = (Coordinate) o;
-            return y == that.y && x == that.x;
+            return Objects.equals(position, that.position) && direction == that.direction;
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(y, x);
+            return Objects.hash(position, direction);
         }
     }
 }
