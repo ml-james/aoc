@@ -125,86 +125,68 @@ public class Day6Part1
 
         private Optional<Vector> move()
         {
-            if (currentVector.direction.equals(Direction.UP))
+            if (isPositionTerminal(currentVector))
             {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY() - 1, currentVector.getX()))
+                return Optional.empty();
+            }
+
+            int y = currentVector.getY();
+            int x = currentVector.getX();
+            Direction direction = currentVector.direction;
+
+            switch (currentVector.direction)
+            {
+                case UP:
+                    if (isPositionObstructed(y - 1, x))
                     {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.RIGHT);
+                        direction = direction.turn();
                     }
                     else
                     {
-                        currentVector = new Vector(currentVector.getY() - 1, currentVector.getX(), Direction.UP);
+                        y--;
                     }
-                    return Optional.of(currentVector);
-                }
-            }
-            else if (currentVector.direction.equals(Direction.RIGHT))
-            {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY(), currentVector.getX() + 1))
+                    break;
+
+                case RIGHT:
+                    if (isPositionObstructed(y, x + 1))
                     {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.DOWN);
+                        direction = direction.turn();
                     }
                     else
                     {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX() + 1, Direction.RIGHT);
+                        x++;
                     }
-                    return Optional.of(currentVector);
-                }
-            }
-            else if (currentVector.direction.equals(Direction.DOWN))
-            {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY() + 1, currentVector.getX()))
+                    break;
+
+                case DOWN:
+                    if (isPositionObstructed(y + 1, x))
                     {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.LEFT);
+                        direction = direction.turn();
                     }
                     else
                     {
-                        currentVector = new Vector(currentVector.getY() + 1, currentVector.getX(), Direction.DOWN);
+                        y++;
                     }
-                    return Optional.of(currentVector);
-                }
-            }
-            else if (currentVector.direction.equals(Direction.LEFT))
-            {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY(), currentVector.getX() - 1))
+                    break;
+
+                case LEFT:
+                    if (isPositionObstructed(y, x - 1))
                     {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.UP);
+                        direction = direction.turn();
                     }
                     else
                     {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX() - 1, Direction.LEFT);
+                        x--;
                     }
-                    return Optional.of(currentVector);
-                }
+                    break;
+
+                default:
+                    throw new RuntimeException("Unrecognized direction!!");
             }
-            else
-            {
-                throw new RuntimeException("Unrecognised direction!!");
-            }
+
+            currentVector = new Vector(y, x, direction);
+
+            return Optional.of(currentVector);
         }
 
         private boolean isPositionObstructed(final int y, final int x)
@@ -219,6 +201,17 @@ public class Day6Part1
         DOWN,
         RIGHT,
         LEFT;
+
+        private Direction turn()
+        {
+            return switch (this)
+            {
+                case UP -> RIGHT;
+                case RIGHT -> DOWN;
+                case DOWN -> LEFT;
+                case LEFT -> UP;
+            };
+        }
     }
 
     private final static class Vector

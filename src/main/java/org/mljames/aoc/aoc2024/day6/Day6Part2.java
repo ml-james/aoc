@@ -66,7 +66,7 @@ public class Day6Part2
             visitedVectors.add(currentCoordinate.get());
             currentCoordinate = grid.move();
         }
-        
+
         return visitedVectors
                 .stream()
                 .map(c -> c.position)
@@ -153,96 +153,78 @@ public class Day6Part2
 
         private Optional<Vector> move()
         {
-            if (currentVector.direction.equals(Direction.UP))
+            if (isPositionTerminal(currentVector))
             {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY() - 1, currentVector.getX()))
-                    {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.RIGHT);
-                    }
-                    else
-                    {
-                        currentVector = new Vector(currentVector.getY() - 1, currentVector.getX(), Direction.UP);
-                    }
-                    return Optional.of(currentVector);
-                }
+                return Optional.empty();
             }
-            else if (currentVector.direction.equals(Direction.RIGHT))
-            {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY(), currentVector.getX() + 1))
-                    {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.DOWN);
-                    }
-                    else
-                    {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX() + 1, Direction.RIGHT);
-                    }
-                    return Optional.of(currentVector);
-                }
-            }
-            else if (currentVector.direction.equals(Direction.DOWN))
-            {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY() + 1, currentVector.getX()))
-                    {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.LEFT);
-                    }
-                    else
-                    {
-                        currentVector = new Vector(currentVector.getY() + 1, currentVector.getX(), Direction.DOWN);
-                    }
-                    return Optional.of(currentVector);
-                }
-            }
-            else if (currentVector.direction.equals(Direction.LEFT))
-            {
-                if (isPositionTerminal(currentVector))
-                {
-                    return Optional.empty();
-                }
-                else
-                {
-                    if (isPositionObstructed(currentVector.getY(), currentVector.getX() - 1))
-                    {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.UP);
-                    }
-                    else
-                    {
-                        currentVector = new Vector(currentVector.getY(), currentVector.getX() - 1, Direction.LEFT);
-                    }
-                    return Optional.of(currentVector);
-                }
-            }
-            else
-            {
-                throw new RuntimeException("Unrecognised direction!!");
-            }
-        }
 
-        private void insertObstacle(final Position position)
-        {
-            grid[position.y][position.x] = '#';
+            int y = currentVector.getY();
+            int x = currentVector.getX();
+            Direction direction = currentVector.direction;
+
+            switch (currentVector.direction)
+            {
+                case UP:
+                    if (isPositionObstructed(y - 1, x))
+                    {
+                        direction = direction.turn();
+                    }
+                    else
+                    {
+                        y--;
+                    }
+                    break;
+
+                case RIGHT:
+                    if (isPositionObstructed(y, x + 1))
+                    {
+                        direction = direction.turn();
+                    }
+                    else
+                    {
+                        x++;
+                    }
+                    break;
+
+                case DOWN:
+                    if (isPositionObstructed(y + 1, x))
+                    {
+                        direction = direction.turn();
+                    }
+                    else
+                    {
+                        y++;
+                    }
+                    break;
+
+                case LEFT:
+                    if (isPositionObstructed(y, x - 1))
+                    {
+                        direction = direction.turn();
+                    }
+                    else
+                    {
+                        x--;
+                    }
+                    break;
+
+                default:
+                    throw new RuntimeException("Unrecognized direction!!");
+            }
+
+            currentVector = new Vector(y, x, direction);
+
+            return Optional.of(currentVector);
         }
 
         private boolean isPositionObstructed(final int y, final int x)
         {
             return grid[y][x] == '#';
+        }
+
+        private void insertObstacle(final Position position)
+        {
+            grid[position.y][position.x] = '#';
         }
     }
 
@@ -252,6 +234,17 @@ public class Day6Part2
         DOWN,
         RIGHT,
         LEFT;
+
+        private Direction turn()
+        {
+            return switch (this)
+            {
+                case UP -> RIGHT;
+                case RIGHT -> DOWN;
+                case DOWN -> LEFT;
+                case LEFT -> UP;
+            };
+        }
     }
 
     private final static class Vector
