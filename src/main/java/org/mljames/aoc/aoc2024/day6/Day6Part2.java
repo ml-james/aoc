@@ -5,12 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Day6Part2
 {
@@ -23,15 +23,15 @@ public class Day6Part2
         final int width = input.getFirst().length();
         final int height = input.size();
 
-        final Grid grid = createGrid(input, height, width);
+        final Grid grid = Grid.createGrid(input, height, width);
+        final Coordinate guardsStartingCoordinate = grid.currentCoordinate;
 
         final List<Position> guardsVisitedPositions = getGuardsDistinctPositionsInPath(grid);
-        final Coordinate guardsStartingCoordinate = grid.currentCoordinate;
 
         int potentialObstacles = 0;
         for (int i = 1; i < guardsVisitedPositions.size(); i++)
         {
-            final Grid gridUnderInspection = createGrid(input, height, width);
+            final Grid gridUnderInspection = Grid.createGrid(input, height, width);
             final Position potentialObstaclePosition = guardsVisitedPositions.get(i);
 
             if (!potentialObstaclePosition.equals(guardsStartingCoordinate.getPosition()))
@@ -58,50 +58,20 @@ public class Day6Part2
 
     private static List<Position> getGuardsDistinctPositionsInPath(final Grid grid)
     {
+        final List<Coordinate> visitedCoordinates = new ArrayList<>();
+        visitedCoordinates.add(grid.currentCoordinate);
         Optional<Coordinate> currentCoordinate = grid.move();
         while (currentCoordinate.isPresent())
         {
+            visitedCoordinates.add(currentCoordinate.get());
             currentCoordinate = grid.move();
         }
         
-        return grid.distinctVisitedPositions();
-    }
-
-    private static Grid createGrid(final List<String> input, final int height, final int width)
-    {
-        final char[][] grid = new char[height][width];
-        Coordinate startingCoordinate = null;
-        for (int i = 0; i < height; i++)
-        {
-            final String row = input.get(i);
-
-            for (int j = 0; j < width; j++)
-            {
-                if (row.charAt(j) == '^')
-                {
-                    startingCoordinate = new Coordinate(i, j, Direction.UP);
-                }
-                if (row.charAt(j) == '>')
-                {
-                    startingCoordinate = new Coordinate(i, j, Direction.RIGHT);
-                }
-                if (row.charAt(j) == '<')
-                {
-                    startingCoordinate = new Coordinate(i, j, Direction.LEFT);
-                }
-                if (row.charAt(j) == 'v')
-                {
-                    startingCoordinate = new Coordinate(i, j, Direction.DOWN);
-                }
-                grid[i][j] = row.charAt(j);
-            }
-        }
-
-        if (startingCoordinate == null)
-        {
-            throw new RuntimeException("Should have found a starting coordinate!!");
-        }
-        return new Grid(grid, height, width, startingCoordinate);
+        return visitedCoordinates
+                .stream()
+                .map(c -> c.position)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private static final class Grid
@@ -109,9 +79,45 @@ public class Day6Part2
         private final char[][] grid;
         private final int height;
         private final int width;
-        private final List<Coordinate> visited;
 
         private Coordinate currentCoordinate;
+
+        private static Grid createGrid(final List<String> input, final int height, final int width)
+        {
+            final char[][] grid = new char[height][width];
+            Coordinate startingCoordinate = null;
+            for (int i = 0; i < height; i++)
+            {
+                final String row = input.get(i);
+
+                for (int j = 0; j < width; j++)
+                {
+                    if (row.charAt(j) == '^')
+                    {
+                        startingCoordinate = new Coordinate(i, j, Direction.UP);
+                    }
+                    if (row.charAt(j) == '>')
+                    {
+                        startingCoordinate = new Coordinate(i, j, Direction.RIGHT);
+                    }
+                    if (row.charAt(j) == '<')
+                    {
+                        startingCoordinate = new Coordinate(i, j, Direction.LEFT);
+                    }
+                    if (row.charAt(j) == 'v')
+                    {
+                        startingCoordinate = new Coordinate(i, j, Direction.DOWN);
+                    }
+                    grid[i][j] = row.charAt(j);
+                }
+            }
+
+            if (startingCoordinate == null)
+            {
+                throw new RuntimeException("Should have found a starting coordinate!!");
+            }
+            return new Grid(grid, height, width, startingCoordinate);
+        }
 
         private Grid(final char[][] grid, final int height, final int width, final Coordinate currentCoordinate)
         {
@@ -119,10 +125,9 @@ public class Day6Part2
             this.height = height;
             this.width = width;
             this.currentCoordinate = currentCoordinate;
-            this.visited = new ArrayList<>(Collections.singleton(currentCoordinate));
         }
 
-        boolean isPositionTerminal(final Coordinate coordinate)
+        private boolean isPositionTerminal(final Coordinate coordinate)
         {
             switch (coordinate.direction)
             {
@@ -146,7 +151,7 @@ public class Day6Part2
             }
         }
 
-        public Optional<Coordinate> move()
+        private Optional<Coordinate> move()
         {
             if (currentCoordinate.direction.equals(Direction.UP))
             {
@@ -163,7 +168,6 @@ public class Day6Part2
                     else
                     {
                         currentCoordinate = new Coordinate(currentCoordinate.getY() - 1, currentCoordinate.getX(), Direction.UP);
-                        visited.add(currentCoordinate);
                     }
                     return Optional.of(currentCoordinate);
                 }
@@ -183,7 +187,6 @@ public class Day6Part2
                     else
                     {
                         currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() + 1, Direction.RIGHT);
-                        visited.add(currentCoordinate);
                     }
                     return Optional.of(currentCoordinate);
                 }
@@ -203,7 +206,6 @@ public class Day6Part2
                     else
                     {
                         currentCoordinate = new Coordinate(currentCoordinate.getY() + 1, currentCoordinate.getX(), Direction.DOWN);
-                        visited.add(currentCoordinate);
                     }
                     return Optional.of(currentCoordinate);
                 }
@@ -223,7 +225,6 @@ public class Day6Part2
                     else
                     {
                         currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() - 1, Direction.LEFT);
-                        visited.add(currentCoordinate);
                     }
                     return Optional.of(currentCoordinate);
                 }
@@ -234,16 +235,7 @@ public class Day6Part2
             }
         }
 
-        List<Position> distinctVisitedPositions()
-        {
-            return visited
-                    .stream()
-                    .map(c -> c.position)
-                    .distinct()
-                    .toList();
-        }
-
-        void insertObstacle(final Position position)
+        private void insertObstacle(final Position position)
         {
             grid[position.y][position.x] = '#';
         }
