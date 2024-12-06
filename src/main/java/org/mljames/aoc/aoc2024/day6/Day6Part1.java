@@ -101,26 +101,13 @@ public class Day6Part1
 
         private boolean isPositionTerminal(final Vector vector)
         {
-            switch (vector.direction)
+            return switch (vector.direction)
             {
-                case UP ->
-                {
-                    return vector.getY() == 0;
-                }
-                case RIGHT ->
-                {
-                    return vector.getX() + 1 == width;
-                }
-                case DOWN ->
-                {
-                    return vector.getY() + 1 == height;
-                }
-                case LEFT ->
-                {
-                    return vector.getX() == 0;
-                }
-                default -> throw new RuntimeException("Unrecognised direction!!");
-            }
+                case UP ->  vector.getY() == 0;
+                case RIGHT -> vector.getX() + 1 == width;
+                case DOWN -> vector.getY() + 1 == height;
+                case LEFT -> vector.getX() == 0;
+            };
         }
 
         private Optional<Vector> move()
