@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,23 +60,21 @@ public class Day5Part2
 
     private static List<Integer> reformBadUpdate(final List<Integer> badUpdate, final Map<Integer, Set<Integer>> pageOrderingRulesByPage)
     {
-        final Set<Integer> pagesToAllocate = new HashSet<>(badUpdate);
+        final List<Integer> pagesToAllocate = new ArrayList<>(badUpdate);
 
-        assert pagesToAllocate.size() == badUpdate.size() : "Expecting (/hoping for) no repeated pages in an update.";
-
-        final List<Integer> reversedReformedUpdate = new ArrayList<>();
-        for (int i = 0; i < badUpdate.size(); i++)
+        final int[] reformedUpdate = new int[badUpdate.size()];
+        for (int i = badUpdate.size() - 1; i >= 0; i--)
         {
             final int allocatedPage = allocatePage(badUpdate, pagesToAllocate, pageOrderingRulesByPage);
-            pagesToAllocate.remove(allocatedPage);
-            reversedReformedUpdate.add(allocatedPage);
+            pagesToAllocate.remove(Integer.valueOf(allocatedPage));
+            reformedUpdate[i] = allocatedPage;
         }
-        return reversedReformedUpdate.reversed();
+        return Arrays.stream(reformedUpdate).boxed().toList();
     }
 
     private static int allocatePage(
             final List<Integer> badUpdate,
-            final Set<Integer> pagesToAllocate,
+            final List<Integer> pagesToAllocate,
             final Map<Integer, Set<Integer>> pageOrderingRulesByPage)
     {
         for (final Integer page : badUpdate)
@@ -93,7 +92,7 @@ public class Day5Part2
 
     private static boolean canAllocatePage(
             final Integer page,
-            final Set<Integer> pagesToAllocate,
+            final List<Integer> pagesToAllocate,
             final Map<Integer, Set<Integer>> pageOrderingRulesByPage)
     {
         if (!pageOrderingRulesByPage.containsKey(page))
@@ -136,7 +135,7 @@ public class Day5Part2
         return pageOrderingRule.stream().anyMatch(pages::contains);
     }
 
-    private static boolean pagesDoNotAppearInPageOrderingRule(final Set<Integer> pages, final Set<Integer> pageOrderingRule)
+    private static boolean pagesDoNotAppearInPageOrderingRule(final List<Integer> pages, final Set<Integer> pageOrderingRule)
     {
         return pageOrderingRule.stream().noneMatch(pages::contains);
     }
