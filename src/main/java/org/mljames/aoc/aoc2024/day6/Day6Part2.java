@@ -24,7 +24,7 @@ public class Day6Part2
         final int height = input.size();
 
         final Grid grid = Grid.createGrid(input, height, width);
-        final Coordinate guardsStartingCoordinate = grid.currentCoordinate;
+        final Vector guardsStartingVector = grid.currentVector;
 
         final List<Position> guardsVisitedPositions = getGuardsDistinctPositionsInPath(grid);
 
@@ -34,17 +34,17 @@ public class Day6Part2
             final Grid gridUnderInspection = Grid.createGrid(input, height, width);
             final Position potentialObstaclePosition = guardsVisitedPositions.get(i);
 
-            if (!potentialObstaclePosition.equals(guardsStartingCoordinate.getPosition()))
+            if (!potentialObstaclePosition.equals(guardsStartingVector.getPosition()))
             {
                 gridUnderInspection.insertObstacle(potentialObstaclePosition);
 
-                final Set<Coordinate> visitedCoordinates = new HashSet<>();
-                Optional<Coordinate> currentCoordinate = gridUnderInspection.move();
+                final Set<Vector> visitedVectors = new HashSet<>();
+                Optional<Vector> currentCoordinate = gridUnderInspection.move();
                 while (currentCoordinate.isPresent())
                 {
-                    visitedCoordinates.add(currentCoordinate.get());
+                    visitedVectors.add(currentCoordinate.get());
                     currentCoordinate = gridUnderInspection.move();
-                    if (currentCoordinate.isPresent() && visitedCoordinates.contains(currentCoordinate.get()))
+                    if (currentCoordinate.isPresent() && visitedVectors.contains(currentCoordinate.get()))
                     {
                         potentialObstacles += 1;
                         currentCoordinate = Optional.empty();
@@ -58,16 +58,16 @@ public class Day6Part2
 
     private static List<Position> getGuardsDistinctPositionsInPath(final Grid grid)
     {
-        final List<Coordinate> visitedCoordinates = new ArrayList<>();
-        visitedCoordinates.add(grid.currentCoordinate);
-        Optional<Coordinate> currentCoordinate = grid.move();
+        final List<Vector> visitedVectors = new ArrayList<>();
+        visitedVectors.add(grid.currentVector);
+        Optional<Vector> currentCoordinate = grid.move();
         while (currentCoordinate.isPresent())
         {
-            visitedCoordinates.add(currentCoordinate.get());
+            visitedVectors.add(currentCoordinate.get());
             currentCoordinate = grid.move();
         }
         
-        return visitedCoordinates
+        return visitedVectors
                 .stream()
                 .map(c -> c.position)
                 .distinct()
@@ -80,12 +80,12 @@ public class Day6Part2
         private final int height;
         private final int width;
 
-        private Coordinate currentCoordinate;
+        private Vector currentVector;
 
         private static Grid createGrid(final List<String> input, final int height, final int width)
         {
             final char[][] grid = new char[height][width];
-            Coordinate startingCoordinate = null;
+            Vector startingVector = null;
             for (int i = 0; i < height; i++)
             {
                 final String row = input.get(i);
@@ -94,139 +94,139 @@ public class Day6Part2
                 {
                     if (row.charAt(j) == '^')
                     {
-                        startingCoordinate = new Coordinate(i, j, Direction.UP);
+                        startingVector = new Vector(i, j, Direction.UP);
                     }
                     if (row.charAt(j) == '>')
                     {
-                        startingCoordinate = new Coordinate(i, j, Direction.RIGHT);
+                        startingVector = new Vector(i, j, Direction.RIGHT);
                     }
                     if (row.charAt(j) == '<')
                     {
-                        startingCoordinate = new Coordinate(i, j, Direction.LEFT);
+                        startingVector = new Vector(i, j, Direction.LEFT);
                     }
                     if (row.charAt(j) == 'v')
                     {
-                        startingCoordinate = new Coordinate(i, j, Direction.DOWN);
+                        startingVector = new Vector(i, j, Direction.DOWN);
                     }
                     grid[i][j] = row.charAt(j);
                 }
             }
 
-            if (startingCoordinate == null)
+            if (startingVector == null)
             {
                 throw new RuntimeException("Should have found a starting coordinate!!");
             }
-            return new Grid(grid, height, width, startingCoordinate);
+            return new Grid(grid, height, width, startingVector);
         }
 
-        private Grid(final char[][] grid, final int height, final int width, final Coordinate currentCoordinate)
+        private Grid(final char[][] grid, final int height, final int width, final Vector currentVector)
         {
             this.grid = grid;
             this.height = height;
             this.width = width;
-            this.currentCoordinate = currentCoordinate;
+            this.currentVector = currentVector;
         }
 
-        private boolean isPositionTerminal(final Coordinate coordinate)
+        private boolean isPositionTerminal(final Vector vector)
         {
-            switch (coordinate.direction)
+            switch (vector.direction)
             {
                 case UP ->
                 {
-                    return coordinate.getY() == 0;
+                    return vector.getY() == 0;
                 }
                 case RIGHT ->
                 {
-                    return coordinate.getX() + 1 == width;
+                    return vector.getX() + 1 == width;
                 }
                 case DOWN ->
                 {
-                    return coordinate.getY() + 1 == height;
+                    return vector.getY() + 1 == height;
                 }
                 case LEFT ->
                 {
-                    return coordinate.getX() == 0;
+                    return vector.getX() == 0;
                 }
                 default -> throw new RuntimeException("Unrecognised direction!!");
             }
         }
 
-        private Optional<Coordinate> move()
+        private Optional<Vector> move()
         {
-            if (currentCoordinate.direction.equals(Direction.UP))
+            if (currentVector.direction.equals(Direction.UP))
             {
-                if (isPositionTerminal(currentCoordinate))
+                if (isPositionTerminal(currentVector))
                 {
                     return Optional.empty();
                 }
                 else
                 {
-                    if (isPositionObstructed(currentCoordinate.getY() - 1, currentCoordinate.getX()))
+                    if (isPositionObstructed(currentVector.getY() - 1, currentVector.getX()))
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.RIGHT);
+                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.RIGHT);
                     }
                     else
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY() - 1, currentCoordinate.getX(), Direction.UP);
+                        currentVector = new Vector(currentVector.getY() - 1, currentVector.getX(), Direction.UP);
                     }
-                    return Optional.of(currentCoordinate);
+                    return Optional.of(currentVector);
                 }
             }
-            else if (currentCoordinate.direction.equals(Direction.RIGHT))
+            else if (currentVector.direction.equals(Direction.RIGHT))
             {
-                if (isPositionTerminal(currentCoordinate))
+                if (isPositionTerminal(currentVector))
                 {
                     return Optional.empty();
                 }
                 else
                 {
-                    if (isPositionObstructed(currentCoordinate.getY(), currentCoordinate.getX() + 1))
+                    if (isPositionObstructed(currentVector.getY(), currentVector.getX() + 1))
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.DOWN);
+                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.DOWN);
                     }
                     else
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() + 1, Direction.RIGHT);
+                        currentVector = new Vector(currentVector.getY(), currentVector.getX() + 1, Direction.RIGHT);
                     }
-                    return Optional.of(currentCoordinate);
+                    return Optional.of(currentVector);
                 }
             }
-            else if (currentCoordinate.direction.equals(Direction.DOWN))
+            else if (currentVector.direction.equals(Direction.DOWN))
             {
-                if (isPositionTerminal(currentCoordinate))
+                if (isPositionTerminal(currentVector))
                 {
                     return Optional.empty();
                 }
                 else
                 {
-                    if (isPositionObstructed(currentCoordinate.getY() + 1, currentCoordinate.getX()))
+                    if (isPositionObstructed(currentVector.getY() + 1, currentVector.getX()))
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.LEFT);
+                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.LEFT);
                     }
                     else
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY() + 1, currentCoordinate.getX(), Direction.DOWN);
+                        currentVector = new Vector(currentVector.getY() + 1, currentVector.getX(), Direction.DOWN);
                     }
-                    return Optional.of(currentCoordinate);
+                    return Optional.of(currentVector);
                 }
             }
-            else if (currentCoordinate.direction.equals(Direction.LEFT))
+            else if (currentVector.direction.equals(Direction.LEFT))
             {
-                if (isPositionTerminal(currentCoordinate))
+                if (isPositionTerminal(currentVector))
                 {
                     return Optional.empty();
                 }
                 else
                 {
-                    if (isPositionObstructed(currentCoordinate.getY(), currentCoordinate.getX() - 1))
+                    if (isPositionObstructed(currentVector.getY(), currentVector.getX() - 1))
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.UP);
+                        currentVector = new Vector(currentVector.getY(), currentVector.getX(), Direction.UP);
                     }
                     else
                     {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() - 1, Direction.LEFT);
+                        currentVector = new Vector(currentVector.getY(), currentVector.getX() - 1, Direction.LEFT);
                     }
-                    return Optional.of(currentCoordinate);
+                    return Optional.of(currentVector);
                 }
             }
             else
@@ -254,12 +254,12 @@ public class Day6Part2
         LEFT;
     }
 
-    private final static class Coordinate
+    private final static class Vector
     {
         private final Position position;
         private final Direction direction;
 
-        private Coordinate(final int y, final int x, final Direction direction)
+        private Vector(final int y, final int x, final Direction direction)
         {
             this.position = new Position(y, x);
             this.direction = direction;
@@ -291,7 +291,7 @@ public class Day6Part2
             {
                 return false;
             }
-            final Coordinate that = (Coordinate) o;
+            final Vector that = (Vector) o;
             return Objects.equals(position, that.position) && direction == that.direction;
         }
 
