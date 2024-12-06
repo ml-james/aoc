@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,7 +29,7 @@ public class Day6Part1
             currentCoordinate = grid.move();
         }
 
-        LOGGER.info("The number of distinct grid points visited by the guard is: {}.", grid.getNumberOfDistinctPositions());
+        LOGGER.info("The number of distinct grid points visited by the guard is: {}.", grid.distinctVisitedPositionsCount());
     }
 
     private static Grid createGrid(final List<String> input, final int height, final int width)
@@ -45,19 +44,19 @@ public class Day6Part1
             {
                 if (row.charAt(j) == '^')
                 {
-                    startingCoordinate = new Coordinate(new Position(i, j), Direction.UP);
+                    startingCoordinate = new Coordinate(i, j, Direction.UP);
                 }
                 if (row.charAt(j) == '>')
                 {
-                    startingCoordinate = new Coordinate(new Position(i, j), Direction.RIGHT);
+                    startingCoordinate = new Coordinate(i, j, Direction.RIGHT);
                 }
                 if (row.charAt(j) == '<')
                 {
-                    startingCoordinate = new Coordinate(new Position(i, j), Direction.LEFT);
+                    startingCoordinate = new Coordinate(i, j, Direction.LEFT);
                 }
                 if (row.charAt(j) == 'v')
                 {
-                    startingCoordinate = new Coordinate(new Position(i, j), Direction.DOWN);
+                    startingCoordinate = new Coordinate(i, j, Direction.DOWN);
                 }
                 grid[i][j] = row.charAt(j);
             }
@@ -88,106 +87,110 @@ public class Day6Part1
             this.visited = new ArrayList<>(Collections.singleton(currentCoordinate));
         }
 
+        boolean isPositionTerminal(final Coordinate coordinate)
+        {
+            switch (coordinate.direction)
+            {
+                case UP ->
+                {
+                    return coordinate.getY() == 0;
+                }
+                case RIGHT ->
+                {
+                    return coordinate.getX() + 1 == width;
+                }
+                case DOWN ->
+                {
+                    return coordinate.getY() + 1 == height;
+                }
+                case LEFT ->
+                {
+                    return coordinate.getX() == 0;
+                }
+                default -> throw new RuntimeException("Unrecognised direction!!");
+            }
+        }
+
         public Optional<Coordinate> move()
         {
             if (currentCoordinate.direction.equals(Direction.UP))
             {
-                if (currentCoordinate.getY() > 0)
+                if (isPositionTerminal(currentCoordinate))
                 {
-                    if (grid[currentCoordinate.getY() - 1][currentCoordinate.getX()] != '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY() - 1, currentCoordinate.getX(), Direction.UP);
-                        visited.add(currentCoordinate);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else if (grid[currentCoordinate.getY() - 1][currentCoordinate.getX()] == '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.RIGHT);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Unrecognised coordinate!!");
-                    }
+                    return Optional.empty();
                 }
                 else
                 {
-                    return Optional.empty();
+                    if (isPositionObstructed(currentCoordinate.getY() - 1, currentCoordinate.getX()))
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.RIGHT);
+                    }
+                    else
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY() - 1, currentCoordinate.getX(), Direction.UP);
+                        visited.add(currentCoordinate);
+                    }
+                    return Optional.of(currentCoordinate);
                 }
             }
             else if (currentCoordinate.direction.equals(Direction.RIGHT))
             {
-                if (currentCoordinate.getX() < width - 1)
+                if (isPositionTerminal(currentCoordinate))
                 {
-                    if (grid[currentCoordinate.getY()][currentCoordinate.getX() + 1] != '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() + 1, Direction.RIGHT);
-                        visited.add(currentCoordinate);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else if (grid[currentCoordinate.getY()][currentCoordinate.getX() + 1] == '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.DOWN);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Unrecognised coordinate!!");
-                    }
+                    return Optional.empty();
                 }
                 else
                 {
-                    return Optional.empty();
+                    if (isPositionObstructed(currentCoordinate.getY(), currentCoordinate.getX() + 1))
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.DOWN);
+                    }
+                    else
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() + 1, Direction.RIGHT);
+                        visited.add(currentCoordinate);
+                    }
+                    return Optional.of(currentCoordinate);
                 }
             }
             else if (currentCoordinate.direction.equals(Direction.DOWN))
             {
-                if (currentCoordinate.getY() < height - 1)
+                if (isPositionTerminal(currentCoordinate))
                 {
-                    if (grid[currentCoordinate.getY() + 1][currentCoordinate.getX()] != '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY() + 1, currentCoordinate.getX(), Direction.DOWN);
-                        visited.add(currentCoordinate);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else if (grid[currentCoordinate.getY() + 1][currentCoordinate.getX()] == '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.LEFT);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Unrecognised coordinate!!");
-                    }
+                    return Optional.empty();
                 }
                 else
                 {
-                    return Optional.empty();
+                    if (isPositionObstructed(currentCoordinate.getY() + 1, currentCoordinate.getX()))
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.LEFT);
+                    }
+                    else
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY() + 1, currentCoordinate.getX(), Direction.DOWN);
+                        visited.add(currentCoordinate);
+                    }
+                    return Optional.of(currentCoordinate);
                 }
             }
             else if (currentCoordinate.direction.equals(Direction.LEFT))
             {
-                if (currentCoordinate.getX() > 0)
+                if (isPositionTerminal(currentCoordinate))
                 {
-                    if (grid[currentCoordinate.getY()][currentCoordinate.getX() - 1] != '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() - 1, Direction.LEFT);
-                        visited.add(currentCoordinate);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else if (grid[currentCoordinate.getY()][currentCoordinate.getX() - 1] == '#')
-                    {
-                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.UP);
-                        return Optional.of(currentCoordinate);
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Unrecognised coordinate!!");
-                    }
+                    return Optional.empty();
                 }
                 else
                 {
-                    return Optional.empty();
+                    if (isPositionObstructed(currentCoordinate.getY(), currentCoordinate.getX() - 1))
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX(), Direction.UP);
+                    }
+                    else
+                    {
+                        currentCoordinate = new Coordinate(currentCoordinate.getY(), currentCoordinate.getX() - 1, Direction.LEFT);
+                        visited.add(currentCoordinate);
+                    }
+                    return Optional.of(currentCoordinate);
                 }
             }
             else
@@ -196,7 +199,7 @@ public class Day6Part1
             }
         }
 
-        int getNumberOfDistinctPositions()
+        int distinctVisitedPositionsCount()
         {
             return visited
                     .stream()
@@ -204,6 +207,11 @@ public class Day6Part1
                     .distinct()
                     .toList()
                     .size();
+        }
+
+        private boolean isPositionObstructed(final int y, final int x)
+        {
+            return grid[y][x] == '#';
         }
     }
 
@@ -215,39 +223,6 @@ public class Day6Part1
         LEFT;
     }
 
-    private final static class Position
-    {
-        private final int y;
-        private final int x;
-
-        private Position(final int y, final int x)
-        {
-            this.y = y;
-            this.x = x;
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass())
-            {
-                return false;
-            }
-            final Position position = (Position) o;
-            return y == position.y && x == position.x;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(y, x);
-        }
-    }
-
     private final static class Coordinate
     {
         private final Position position;
@@ -256,12 +231,6 @@ public class Day6Part1
         private Coordinate(final int y, final int x, final Direction direction)
         {
             this.position = new Position(y, x);
-            this.direction = direction;
-        }
-
-        private Coordinate(final Position position, final Direction direction)
-        {
-            this.position = position;
             this.direction = direction;
         }
 
@@ -295,5 +264,40 @@ public class Day6Part1
         {
             return Objects.hash(position, direction);
         }
+
+
+        private final static class Position
+        {
+            private final int y;
+            private final int x;
+
+            private Position(final int y, final int x)
+            {
+                this.y = y;
+                this.x = x;
+            }
+
+            @Override
+            public boolean equals(final Object o)
+            {
+                if (this == o)
+                {
+                    return true;
+                }
+                if (o == null || getClass() != o.getClass())
+                {
+                    return false;
+                }
+                final Position position = (Position) o;
+                return y == position.y && x == position.x;
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(y, x);
+            }
+        }
+
     }
 }
