@@ -34,26 +34,39 @@ public class Day6Part2
             final Grid gridUnderInspection = Grid.createGrid(input, height, width);
             final Position potentialObstaclePosition = guardsVisitedPositions.get(i);
 
-            if (!potentialObstaclePosition.equals(guardsStartingVector.getPosition()))
+            if (positionsNotEqual(potentialObstaclePosition, guardsStartingVector.position))
             {
-                gridUnderInspection.insertObstacle(potentialObstaclePosition);
-
-                final Set<Vector> visitedVectors = new HashSet<>();
-                Optional<Vector> currentCoordinate = gridUnderInspection.move();
-                while (currentCoordinate.isPresent())
+                if (isValidObstacleForInfiniteLoop(gridUnderInspection, potentialObstaclePosition))
                 {
-                    visitedVectors.add(currentCoordinate.get());
-                    currentCoordinate = gridUnderInspection.move();
-                    if (currentCoordinate.isPresent() && visitedVectors.contains(currentCoordinate.get()))
-                    {
-                        potentialObstacles += 1;
-                        currentCoordinate = Optional.empty();
-                    }
+                    potentialObstacles += 1;
                 }
             }
         }
 
         LOGGER.info("The number of possible obstructions are: {}.", potentialObstacles);
+    }
+
+    private static boolean positionsNotEqual(final Position potentialObstaclePosition, final Position guardsStartingVector)
+    {
+        return !potentialObstaclePosition.equals(guardsStartingVector);
+    }
+
+    private static boolean isValidObstacleForInfiniteLoop(final Grid gridUnderInspection, final Position position)
+    {
+        gridUnderInspection.insertObstacle(position);
+
+        final Set<Vector> visitedVectors = new HashSet<>();
+        Optional<Vector> currentCoordinate = gridUnderInspection.move();
+        while (currentCoordinate.isPresent())
+        {
+            visitedVectors.add(currentCoordinate.get());
+            currentCoordinate = gridUnderInspection.move();
+            if (currentCoordinate.isPresent() && visitedVectors.contains(currentCoordinate.get()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static List<Position> getGuardsDistinctPositionsInPath(final Grid grid)
