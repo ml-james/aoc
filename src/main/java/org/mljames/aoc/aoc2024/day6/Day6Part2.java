@@ -36,7 +36,7 @@ public class Day6Part2
 
             if (positionsNotEqual(potentialObstaclePosition, guardsStartingVector.position))
             {
-                if (isValidObstacleForInfiniteLoop(gridUnderInspection, potentialObstaclePosition))
+                if (isValidObstaclePositionForInfiniteLoop(gridUnderInspection, potentialObstaclePosition))
                 {
                     potentialObstacles += 1;
                 }
@@ -51,7 +51,7 @@ public class Day6Part2
         return !potentialObstaclePosition.equals(guardsStartingVector);
     }
 
-    private static boolean isValidObstacleForInfiniteLoop(final Grid gridUnderInspection, final Position position)
+    private static boolean isValidObstaclePositionForInfiniteLoop(final Grid gridUnderInspection, final Position position)
     {
         gridUnderInspection.insertObstacle(position);
 
