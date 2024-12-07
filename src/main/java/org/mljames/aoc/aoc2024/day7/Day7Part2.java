@@ -4,7 +4,6 @@ import org.mljames.aoc.PuzzleInputReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,18 +20,18 @@ public class Day7Part2
     {
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day7/part1/puzzle_input.txt");
 
-        BigInteger sumOfTestValues = BigInteger.ZERO;
+        long sumOfTestValues = 0L;
         for (final String equation : input)
         {
             final int splitIndex = equation.indexOf(":");
-            final BigInteger testValue = new BigInteger(equation.substring(0, splitIndex));
-            final List<BigInteger> numbers = Arrays.stream(equation.substring(splitIndex + 2).split(" ")).map(BigInteger::new).toList();
+            final long testValue = Long.parseLong(equation.substring(0, splitIndex));
+            final List<Long> numbers = Arrays.stream(equation.substring(splitIndex + 2).split(" ")).map(Long::parseLong).toList();
 
             final List<String> allOperatorCombinations = possibleOperatorCombinations(numbers.size() - 1);
 
             if (hasValidOperatorCombination(allOperatorCombinations, numbers, testValue))
             {
-                sumOfTestValues = sumOfTestValues.add(testValue);
+                sumOfTestValues += testValue;
             }
         }
 
@@ -41,17 +40,17 @@ public class Day7Part2
 
     private static boolean hasValidOperatorCombination(
             final List<String> allOperatorCombinations,
-            final List<BigInteger> numbers,
-            final BigInteger testValue)
+            final List<Long> numbers,
+            final long testValue)
     {
         for (final String operatorCombination : allOperatorCombinations)
         {
-            BigInteger runningTotal = numbers.getFirst();
+            long runningTotal = numbers.getFirst();
             for (int j = 0; j < operatorCombination.length(); j++)
             {
                 runningTotal = calculate(runningTotal, numbers.get(j + 1), operatorCombination.charAt(j));
             }
-            if (runningTotal.compareTo(testValue) == 0)
+            if (runningTotal == testValue)
             {
                 return true;
             }
@@ -59,19 +58,19 @@ public class Day7Part2
         return false;
     }
 
-    private static BigInteger calculate(final BigInteger lhs, final BigInteger rhs, final char operator)
+    private static long calculate(final long lhs, final Long rhs, final char operator)
     {
         if (operator == '*')
         {
-            return lhs.multiply(rhs);
+            return lhs * rhs;
         }
         else if (operator == '+')
         {
-            return lhs.add(rhs);
+            return lhs + rhs;
         }
         else if (operator == '|')
         {
-            return new BigInteger(lhs.toString() + rhs.toString());
+            return Long.parseLong(lhs + Long.toString(rhs));
         }
         else
         {
