@@ -29,7 +29,7 @@ public class Day7Part1
 
             final List<String> allOperatorCombinations = possibleOperatorCombinations(numbers.size() - 1);
 
-            if (hasValidOperatorCombination(allOperatorCombinations, numbers, testValue, sumOfTestValues))
+            if (hasValidOperatorCombination(allOperatorCombinations, numbers, testValue))
             {
                 sumOfTestValues = sumOfTestValues.add(testValue);
             }
@@ -38,7 +38,10 @@ public class Day7Part1
         LOGGER.info("The number of valid combinations is equal to: {}.", sumOfTestValues);
     }
 
-    private static boolean hasValidOperatorCombination(List<String> allOperatorCombinations, List<BigInteger> numbers, BigInteger testValue, BigInteger sumOfTestValues)
+    private static boolean hasValidOperatorCombination(
+            final List<String> allOperatorCombinations,
+            final List<BigInteger> numbers,
+            final BigInteger testValue)
     {
         for (final String operatorCombination : allOperatorCombinations)
         {
@@ -64,7 +67,8 @@ public class Day7Part1
         else if (operator == '+')
         {
             return lhs.add(rhs);
-        } else
+        }
+        else
         {
             throw new RuntimeException("Unrecognised operator!!");
         }
