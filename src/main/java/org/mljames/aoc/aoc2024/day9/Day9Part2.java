@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,23 +70,12 @@ public class Day9Part2
             return new Memory(memoryUnits.toArray(MemoryUnit[]::new));
         }
 
-        private int getLargestFileId()
-        {
-            return Arrays.stream(memoryUnits).filter(m -> m.file.isPresent()).map(f -> f.file.get().fileId).toList().getLast();
-        }
-
         private MemoryUnit[] getCompressedMemoryUnits()
         {
-            Optional<Integer> fileIdCompressedAttempted = Optional.empty();
             for (int i = memoryUnits.length - 1; i >= 0; i--)
             {
-                if (fileIdCompressedAttempted.isPresent() && fileIdCompressedAttempted.get().equals(0))
-                {
-                    break;
-                }
                 if (memoryUnits[i].file.isPresent())
                 {
-                    fileIdCompressedAttempted = Optional.of(memoryUnits[i].file.get().fileId);
                     int fileSize = memoryUnits[i].file.get().size;
                     for (int j = 0; j < i - 1; j++)
                     {
@@ -138,13 +126,13 @@ public class Day9Part2
     {
         private final int fileId;
         private final int size;
-        private final int unit;
+        private final int subsection;
 
-        private File(final int fileId, final int size, final int unit)
+        private File(final int fileId, final int size, final int subsection)
         {
             this.fileId = fileId;
             this.size = size;
-            this.unit = unit;
+            this.subsection = subsection;
         }
 
         @Override
@@ -153,7 +141,7 @@ public class Day9Part2
             return "File{" +
                     "fileId=" + fileId +
                     ", size=" + size +
-                    ", unit=" + unit +
+                    ", unit=" + subsection +
                     '}';
         }
     }
