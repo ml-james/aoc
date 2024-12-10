@@ -77,7 +77,7 @@ public class Day9Part2
                 if (memoryUnits[i].file.isPresent())
                 {
                     int fileSize = memoryUnits[i].file.get().size;
-                    for (int j = 0; j < i - 1; j++)
+                    for (int j = 0; j < i; j++)
                     {
                         if (memoryUnits[j].file.isEmpty())
                         {
