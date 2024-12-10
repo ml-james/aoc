@@ -80,7 +80,7 @@ public class Day9Part2
                 if (memoryUnits[i].file.isPresent())
                 {
                     int fileSize = memoryUnits[i].file.get().size;
-                    startSearchingFrom = findNextFreeMemoryIndex(memoryUnits, startSearchingFrom);
+                    startSearchingFrom = findNextFreeMemoryIndex(memoryUnits, startSearchingFrom, i);
                     for (int j = startSearchingFrom; j < i; j++)
                     {
                         if (memoryUnits[j].file.isEmpty())
@@ -104,9 +104,9 @@ public class Day9Part2
             return memoryUnits;
         }
 
-        private int findNextFreeMemoryIndex(final MemoryUnit[] memoryUnits, final int startSearchingFrom)
+        private int findNextFreeMemoryIndex(final MemoryUnit[] memoryUnits, final int startSearchingFrom, int max)
         {
-            for (int i = startSearchingFrom; i < memoryUnits.length; i++)
+            for (int i = startSearchingFrom; i < max; i++)
             {
                 if (memoryUnits[i].file.isEmpty())
                 {
