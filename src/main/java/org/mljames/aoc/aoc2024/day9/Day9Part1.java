@@ -31,7 +31,7 @@ public class Day9Part1
             }
         }
 
-        LOGGER.info("After compaction the filesystem checksum is equal to: {} in {}ms.", checksum, System.currentTimeMillis() - start);
+        LOGGER.info("After compaction the filesystem checksum is equal to: {}, calculated in {}ms.", checksum, System.currentTimeMillis() - start);
     }
 
     private static final class Memory

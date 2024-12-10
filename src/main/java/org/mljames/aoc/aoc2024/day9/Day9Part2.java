@@ -32,7 +32,7 @@ public class Day9Part2
             }
         }
 
-        LOGGER.info("After compaction the filesystem checksum is equal to: {} in {}ms.", checksum, System.currentTimeMillis() - start);
+        LOGGER.info("After compaction the filesystem checksum is equal to: {}, calculated in {}ms.", checksum, System.currentTimeMillis() - start);
     }
 
     private static final class Memory
@@ -80,7 +80,7 @@ public class Day9Part2
                 if (memoryUnits[i].file.isPresent())
                 {
                     int fileSize = memoryUnits[i].file.get().size;
-                    boolean setStartSearchingFrom = true;
+                    startSearchingFrom = findNextFreeMemoryIndex(memoryUnits, startSearchingFrom);
                     for (int j = startSearchingFrom; j < i; j++)
                     {
                         if (memoryUnits[j].file.isEmpty())
@@ -96,20 +96,24 @@ public class Day9Part2
                                 }
                                 break;
                             }
-                            else
-                            {
-                                if (setStartSearchingFrom)
-                                {
-                                    startSearchingFrom = j;
-                                    setStartSearchingFrom = false;
-                                }
-                            }
                         }
                     }
                     i = i - fileSize + 1;
                 }
             }
             return memoryUnits;
+        }
+
+        private int findNextFreeMemoryIndex(final MemoryUnit[] memoryUnits, final int startSearchingFrom)
+        {
+            for (int i = startSearchingFrom; i < memoryUnits.length; i++)
+            {
+                if (memoryUnits[i].file.isEmpty())
+                {
+                    return i;
+                }
+            }
+            return memoryUnits.length;
         }
 
         private int findFreeMemoryRegionSize(final MemoryUnit[] memoryUnits, final int i)
