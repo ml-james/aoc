@@ -14,6 +14,8 @@ public class Day2Part1
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day2/part1/puzzle_input.txt", "\\s{1}");
 
         int safeCount = 0;
@@ -25,7 +27,7 @@ public class Day2Part1
             }
         }
 
-        LOGGER.info("The number of reports that are safe is equal to: {}", safeCount);
+        LOGGER.info("The number of reports that are safe is equal to: {}, calculated in {}ms.", safeCount, System.currentTimeMillis() - start);
     }
 
     private static boolean isListSafe(final List<String> row)

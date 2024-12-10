@@ -17,6 +17,8 @@ public class Day5Part1
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<List<String>> pageOrderingRules = PuzzleInputReader.readInput("aoc2024/day5/part1/puzzle_input1.txt", "\\|");
         final List<List<Integer>> candidateUpdates = PuzzleInputReader.readInputAsInts("aoc2024/day5/part1/puzzle_input2.txt", ",");
 
@@ -40,7 +42,7 @@ public class Day5Part1
 
         final int sum = goodUpdates.stream().mapToInt(Day5Part1::getMiddlePage).sum();
 
-        LOGGER.info("The sum of the middle pages for all of the valid updates is: {}.", sum);
+        LOGGER.info("The sum of the middle pages for all of the valid updates is: {}, calculated in {}ms.", sum, System.currentTimeMillis() - start);
     }
 
     private static boolean isGoodUpdate(final List<Integer> update, final Map<Integer, Set<Integer>> pageOrderingRulesByPage)

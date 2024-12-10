@@ -23,6 +23,8 @@ public class Day3Part2
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day3/part2/puzzle_input.txt");
 
         final String inputConcat = String.join("", input);
@@ -42,7 +44,7 @@ public class Day3Part2
             }
         }
 
-        LOGGER.info("Result of all of the multiplications within enabled regions is equal to: {}.", sum);
+        LOGGER.info("Result of all of the multiplications within enabled regions is equal to: {}, calculated in {}ms.", sum, System.currentTimeMillis() - start);
     }
 
     private static List<Region> findEnabledRegions(final String input)

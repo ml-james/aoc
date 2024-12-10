@@ -17,6 +17,8 @@ public class Day7Part1
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day7/part1/puzzle_input.txt");
 
         long sumOfTestValues = 0L;
@@ -34,7 +36,7 @@ public class Day7Part1
             }
         }
 
-        LOGGER.info("The number of valid combinations is equal to: {}.", sumOfTestValues);
+        LOGGER.info("The number of valid combinations is equal to: {}, calculated in {}ms.", sumOfTestValues, System.currentTimeMillis() - start);
     }
 
     private static boolean hasValidOperatorCombination(

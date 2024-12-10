@@ -15,6 +15,8 @@ public class Day6Part1
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day6/part1/puzzle_input.txt");
 
         final int width = input.getFirst().length();
@@ -24,7 +26,7 @@ public class Day6Part1
 
         final int guardsDistinctPositionsInPath = getGuardsDistinctPositionsInPathCount(grid);
 
-        LOGGER.info("The number of distinct grid points visited by the guard is: {}.", guardsDistinctPositionsInPath);
+        LOGGER.info("The number of distinct grid points visited by the guard is: {}, calculated in {}ms.", guardsDistinctPositionsInPath, System.currentTimeMillis() - start);
     }
 
     private static int getGuardsDistinctPositionsInPathCount(final Grid grid)

@@ -17,6 +17,8 @@ public class Day8Part2
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day8/part2/puzzle_input.txt");
 
         final int width = input.getFirst().length();
@@ -38,7 +40,7 @@ public class Day8Part2
 
         long numberOfAntinodes = gridsByAntennaType.values().stream().flatMap(x -> x.antinodes.stream()).distinct().count();
 
-        LOGGER.info("The number of antinodes on the grid is equal to: {}.", numberOfAntinodes);
+        LOGGER.info("The number of antinodes on the grid is equal to: {}, calculated in {}ms.", numberOfAntinodes, System.currentTimeMillis() - start);
     }
 
     private static final class Grid

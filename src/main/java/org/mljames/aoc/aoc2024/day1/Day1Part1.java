@@ -14,6 +14,8 @@ public class Day1Part1
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part1/puzzle_input.txt","\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
@@ -35,6 +37,6 @@ public class Day1Part1
             distance += Math.abs(sortedListA.get(i) - sortedListB.get(i));
         }
 
-        LOGGER.info("Distance between lists is: {}", distance);
+        LOGGER.info("Distance between lists is: {}, calculated in {}ms.", distance, System.currentTimeMillis() - start);
     }
 }

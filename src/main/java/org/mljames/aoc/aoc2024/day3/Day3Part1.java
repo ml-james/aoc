@@ -16,6 +16,8 @@ public class Day3Part1
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day3/part1/puzzle_input.txt");
 
         final String inputConcat = String.join("", input);
@@ -29,6 +31,6 @@ public class Day3Part1
             sum += lhs * rhs;
         }
 
-        LOGGER.info("Result of all of the multiplications is equal to: {}.", sum);
+        LOGGER.info("Result of all of the multiplications is equal to: {}, calculated in {}ms.", sum, System.currentTimeMillis() - start);
     }
 }

@@ -18,6 +18,8 @@ public class Day5Part2
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<List<String>> pageOrderingRules = PuzzleInputReader.readInput("aoc2024/day5/part2/puzzle_input1.txt", "\\|");
         final List<List<Integer>> candidateUpdates = PuzzleInputReader.readInputAsInts("aoc2024/day5/part2/puzzle_input2.txt", ",");
 
@@ -55,7 +57,7 @@ public class Day5Part2
 
         final int sum = reformedBadUpdates.stream().mapToInt(Day5Part2::getMiddlePage).sum();
 
-        LOGGER.info("The sum of the middle pages for all of the valid updates is: {}.", sum);
+        LOGGER.info("The sum of the middle pages for all of the valid updates is: {}, calculated in {}ms.", sum, System.currentTimeMillis() - start);
     }
 
     private static List<Integer> reformBadUpdate(final List<Integer> badUpdate, final Map<Integer, Set<Integer>> pageOrderingRulesByPage)

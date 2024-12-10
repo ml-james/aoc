@@ -15,6 +15,8 @@ public class Day4Part2
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day4/part2/puzzle_input.txt");
 
         final int width = input.getFirst().length();
@@ -34,7 +36,7 @@ public class Day4Part2
             }
         }
 
-        LOGGER.info("The number of times xmas appears in a cross in the crossword is {}.", xmasCount);
+        LOGGER.info("The number of times xmas appears in a cross in the crossword is {}, calculated in {}ms.", xmasCount, System.currentTimeMillis() - start);
     }
 
     private static int checkDiagonals(final int i, final int j, final char[][] grid)

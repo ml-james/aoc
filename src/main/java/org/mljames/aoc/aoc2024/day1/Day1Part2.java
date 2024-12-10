@@ -16,6 +16,8 @@ public class Day1Part2
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt","\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
@@ -34,6 +36,6 @@ public class Day1Part2
             similarity += value * listBValueOccurrences.getOrDefault(value, 0);
         }
 
-        LOGGER.info("Similarity between lists is: {}", similarity);
+        LOGGER.info("Similarity between lists is: {}, calculated in {}ms.", similarity, System.currentTimeMillis() - start);
     }
 }
