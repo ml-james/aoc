@@ -29,7 +29,7 @@ public class Day10Part1
             {
                 if (Character.getNumericValue(input.get(j).charAt(i)) == 0)
                 {
-                    findDistinctTrailHeadSummits(input, j, i, width, height, 0, new HashSet<>(), counter);
+                    findDistinctTrailHeadSummits(input, j, i, height, width, 0, new HashSet<>(), counter);
                 }
             }
         }
@@ -41,96 +41,53 @@ public class Day10Part1
             final List<String> input,
             final int j,
             final int i,
-            final int width,
             final int height,
+            final int width,
             final int currentValue,
-            final Set<Position> positionsVisited,
+            final Set<Position> trailHeadSummitsVisited,
             final Counter counter)
     {
-        int moveRight;
-        if (i + 1 < width)
+        move(input, j, i + 1, height, width, currentValue, trailHeadSummitsVisited, counter);
+        move(input, j, i - 1, height, width, currentValue, trailHeadSummitsVisited, counter);
+        move(input, j + 1, i, height, width, currentValue, trailHeadSummitsVisited, counter);
+        move(input, j - 1, i, height, width, currentValue, trailHeadSummitsVisited, counter);
+    }
+
+    private static void move(
+            final List<String> input,
+            final int newY,
+            final int newX,
+            final int height,
+            final int width,
+            final int currentValue,
+            final Set<Position> trailHeadSummitsVisited,
+            final Counter counter)
+    {
+        if (positionWithinBounds(newY, newX, height, width))
         {
-            moveRight = Character.getNumericValue(input.get(j).charAt(i + 1));
-            if (moveRight == currentValue + 1)
+            int move = Character.getNumericValue(input.get(newY).charAt(newX));
+            if (move == currentValue + 1)
             {
-                if (moveRight == 9)
+                if (move == 9)
                 {
-                    if (!positionsVisited.contains(new Position(j, i + 1)))
+                    final Position newPosition = new Position(newY, newX);
+                    if (!trailHeadSummitsVisited.contains(newPosition))
                     {
-                        positionsVisited.add(new Position(j, i + 1));
                         counter.increment();
+                        trailHeadSummitsVisited.add(newPosition);
                     }
                 }
                 else
                 {
-                    findDistinctTrailHeadSummits(input, j, i + 1, width, height, moveRight, positionsVisited, counter);
-                }
-
-            }
-        }
-        int moveLeft;
-        if (i - 1 >= 0)
-        {
-            moveLeft = Character.getNumericValue(input.get(j).charAt(i - 1));
-            if (moveLeft == currentValue + 1)
-            {
-                if (moveLeft == 9)
-                {
-                    if (!positionsVisited.contains(new Position(j, i - 1)))
-                    {
-                        positionsVisited.add(new Position(j, i - 1));
-                        counter.increment();
-                    }
-                }
-                else
-                {
-                    findDistinctTrailHeadSummits(input, j, i - 1, width, height, moveLeft, positionsVisited, counter);
-                }
-            }
-
-        }
-        int moveUp;
-        if (j - 1 >= 0)
-        {
-            moveUp = Character.getNumericValue(input.get(j - 1).charAt(i));
-            if (moveUp == currentValue + 1)
-            {
-                if (moveUp == 9)
-                {
-                    if (!positionsVisited.contains(new Position(j - 1, i)))
-                    {
-                        positionsVisited.add(new Position(j - 1, i));
-                        counter.increment();
-                    }
-                }
-                else
-                {
-                    findDistinctTrailHeadSummits(input, j - 1, i, width, height, moveUp, positionsVisited, counter);
-                }
-
-            }
-        }
-        int moveDown;
-        if (j + 1 < height)
-        {
-            moveDown = Character.getNumericValue(input.get(j + 1).charAt(i));
-            if (moveDown == currentValue + 1)
-            {
-
-                if (moveDown == 9)
-                {
-                    if (!positionsVisited.contains(new Position(j + 1, i)))
-                    {
-                        positionsVisited.add(new Position(j + 1, i));
-                        counter.increment();
-                    }
-                }
-                else
-                {
-                    findDistinctTrailHeadSummits(input, j + 1, i, width, height, moveDown, positionsVisited, counter);
+                    findDistinctTrailHeadSummits(input, newY, newX, height, width, move, trailHeadSummitsVisited, counter);
                 }
             }
         }
+    }
+
+    private static boolean positionWithinBounds(final int j, final int i, final int height, final int width)
+    {
+        return j >= 0 && j < height && i >= 0 && i < width;
     }
 
     private static class Counter
@@ -145,13 +102,13 @@ public class Day10Part1
 
     private static final class Position
     {
-        private final int x;
         private final int y;
+        private final int x;
 
-        private Position(final int x, final int y)
+        private Position(final int y, final int x)
         {
-            this.x = x;
             this.y = y;
+            this.x = x;
         }
 
         @Override

@@ -26,7 +26,7 @@ public class Day10Part2
             {
                 if (Character.getNumericValue(input.get(j).charAt(i)) == 0)
                 {
-                    findDistinctHikingTrails(input, j, i, width, height, 0, counter);
+                    findDistinctHikingTrails(input, j, i, height, width, 0, counter);
                 }
             }
         }
@@ -38,79 +38,46 @@ public class Day10Part2
             final List<String> input,
             final int j,
             final int i,
-            final int width,
             final int height,
+            final int width,
             final int currentValue,
             final Counter counter)
     {
-        int moveRight;
-        if (i + 1 < width)
+        move(input, j, i + 1, height, width, currentValue, counter);
+        move(input, j, i - 1, height, width, currentValue, counter);
+        move(input, j + 1, i, height, width, currentValue, counter);
+        move(input, j - 1, i, height, width, currentValue, counter);
+    }
+
+    private static void move(
+            final List<String> input,
+            final int newY,
+            final int newX,
+            final int height,
+            final int width,
+            final int currentValue,
+            final Counter counter)
+    {
+        if (positionWithinBounds(newY, newX, height, width))
         {
-            moveRight = Character.getNumericValue(input.get(j).charAt(i + 1));
-            if (moveRight == currentValue + 1)
+            int move = Character.getNumericValue(input.get(newY).charAt(newX));
+            if (move == currentValue + 1)
             {
-                if (moveRight == 9)
+                if (move == 9)
                 {
                     counter.increment();
                 }
                 else
                 {
-                    findDistinctHikingTrails(input, j, i + 1, width, height, moveRight, counter);
-                }
-
-            }
-        }
-        int moveLeft;
-        if (i - 1 >= 0)
-        {
-            moveLeft = Character.getNumericValue(input.get(j).charAt(i - 1));
-            if (moveLeft == currentValue + 1)
-            {
-                if (moveLeft == 9)
-                {
-                    counter.increment();
-                }
-                else
-                {
-                    findDistinctHikingTrails(input, j, i - 1, width, height, moveLeft, counter);
-                }
-            }
-
-        }
-        int moveUp;
-        if (j - 1 >= 0)
-        {
-            moveUp = Character.getNumericValue(input.get(j - 1).charAt(i));
-            if (moveUp == currentValue + 1)
-            {
-                if (moveUp == 9)
-                {
-                    counter.increment();
-                }
-                else
-                {
-                    findDistinctHikingTrails(input, j - 1, i, width, height, moveUp, counter);
-                }
-
-            }
-        }
-        int moveDown;
-        if (j + 1 < height)
-        {
-            moveDown = Character.getNumericValue(input.get(j + 1).charAt(i));
-            if (moveDown == currentValue + 1)
-            {
-
-                if (moveDown == 9)
-                {
-                    counter.increment();
-                }
-                else
-                {
-                    findDistinctHikingTrails(input, j + 1, i, width, height, moveDown, counter);
+                    findDistinctHikingTrails(input, newY, newX, height, width, move, counter);
                 }
             }
         }
+    }
+
+    private static boolean positionWithinBounds(final int j, final int i, final int height, final int width)
+    {
+        return j >= 0 && j < height && i >= 0 && i < width;
     }
 
     private static class Counter
