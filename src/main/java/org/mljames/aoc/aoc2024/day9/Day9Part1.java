@@ -23,7 +23,11 @@ public class Day9Part1
         long checksum = 0L;
         for (int i = 0; i < compressedMemoryUnits.length; i++)
         {
-            checksum += (long) i * compressedMemoryUnits[i].fileId.orElse(0);
+            final Optional<File> file = compressedMemoryUnits[i].file;
+            if (file.isPresent())
+            {
+                checksum += (long) i * file.get().fileId;
+            }
         }
 
         LOGGER.info("After compaction the filesystem checksum is equal to: {}.", checksum);
@@ -45,12 +49,12 @@ public class Day9Part1
             final List<MemoryUnit> memoryUnits = new ArrayList<>();
             for (int i = 0; i < memoryString.length(); i++)
             {
-                long n = Long.parseLong(Character.toString(memoryString.charAt(i)));
+                int n = Integer.parseInt(Character.toString(memoryString.charAt(i)));
                 if (!isFree)
                 {
                     for (int j = 0; j < n; j++)
                     {
-                        memoryUnits.add(new MemoryUnit(Optional.of(id)));
+                        memoryUnits.add(new MemoryUnit(Optional.of(new File(id, n, j))));
                     }
                     id += 1;
                 }
@@ -70,11 +74,11 @@ public class Day9Part1
         {
             for (int i = memoryUnits.length - 1; i >= 0; i--)
             {
-                if (memoryUnits[i].fileId.isPresent())
+                if (memoryUnits[i].file.isPresent())
                 {
                     for (int j = 0; j < i; j++)
                     {
-                        if (memoryUnits[j].fileId.isEmpty())
+                        if (memoryUnits[j].file.isEmpty())
                         {
                             final MemoryUnit intermediateValue = memoryUnits[i];
                             memoryUnits[i] = memoryUnits[j];
@@ -90,11 +94,35 @@ public class Day9Part1
 
     private static class MemoryUnit
     {
-        private final Optional<Integer> fileId;
+        private final Optional<File> file;
 
-        public MemoryUnit(final Optional<Integer> fileId)
+        public MemoryUnit(final Optional<File> file)
+        {
+            this.file = file;
+        }
+    }
+
+    private static class File
+    {
+        private final int fileId;
+        private final int size;
+        private final int subsection;
+
+        private File(final int fileId, final int size, final int subsection)
         {
             this.fileId = fileId;
+            this.size = size;
+            this.subsection = subsection;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "File{" +
+                    "fileId=" + fileId +
+                    ", size=" + size +
+                    ", unit=" + subsection +
+                    '}';
         }
     }
 }
