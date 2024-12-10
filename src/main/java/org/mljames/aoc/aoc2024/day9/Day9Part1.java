@@ -68,23 +68,17 @@ public class Day9Part1
 
         public MemoryUnit[] getCompressedMemoryUnits()
         {
-            int replacedMemoryIndex = memoryUnits.length;
-            for (int i = 0; i <= memoryUnits.length; i++)
+            for (int i = memoryUnits.length - 1; i >= 0; i--)
             {
-                if (replacedMemoryIndex <= i)
+                if (memoryUnits[i].fileId.isPresent())
                 {
-                    break;
-                }
-                if (memoryUnits[i].fileId.isEmpty())
-                {
-                    for (int j = memoryUnits.length - 1; j >= i; j--)
+                    for (int j = 0; j < i; j++)
                     {
-                        if (memoryUnits[j].fileId.isPresent())
+                        if (memoryUnits[j].fileId.isEmpty())
                         {
                             final MemoryUnit intermediateValue = memoryUnits[i];
                             memoryUnits[i] = memoryUnits[j];
                             memoryUnits[j] = intermediateValue;
-                            replacedMemoryIndex = j;
                             break;
                         }
                     }
