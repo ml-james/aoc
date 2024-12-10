@@ -14,6 +14,8 @@ public class Day9Part2
 
     public static void main(String[] args)
     {
+        final long start = System.currentTimeMillis();
+
         final List<String> input = PuzzleInputReader.readInput("aoc2024/day9/part2/puzzle_input.txt");
 
         final Memory memory = Memory.createMemory(input.getFirst());
@@ -30,7 +32,7 @@ public class Day9Part2
             }
         }
 
-        LOGGER.info("After compaction the filesystem checksum is equal to: {}.", checksum);
+        LOGGER.info("After compaction the filesystem checksum is equal to: {} in {}ms.", checksum, System.currentTimeMillis() - start);
     }
 
     private static final class Memory
@@ -72,12 +74,14 @@ public class Day9Part2
 
         private MemoryUnit[] getCompressedMemoryUnits()
         {
+            int startSearchingFrom = 0;
             for (int i = memoryUnits.length - 1; i >= 0; i--)
             {
                 if (memoryUnits[i].file.isPresent())
                 {
                     int fileSize = memoryUnits[i].file.get().size;
-                    for (int j = 0; j < i; j++)
+                    boolean setStartSearchingFrom = true;
+                    for (int j = startSearchingFrom; j < i; j++)
                     {
                         if (memoryUnits[j].file.isEmpty())
                         {
@@ -92,8 +96,17 @@ public class Day9Part2
                                 }
                                 break;
                             }
+                            else
+                            {
+                                if (setStartSearchingFrom)
+                                {
+                                    startSearchingFrom = j;
+                                    setStartSearchingFrom = false;
+                                }
+                            }
                         }
                     }
+                    i = i - fileSize + 1;
                 }
             }
             return memoryUnits;
