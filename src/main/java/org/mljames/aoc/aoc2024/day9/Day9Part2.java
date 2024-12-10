@@ -54,7 +54,7 @@ public class Day9Part2
                 {
                     for (int j = 0; j < n; j++)
                     {
-                        memoryUnits.add(new MemoryUnit(Optional.of(new File(id, n, j + 1))));
+                        memoryUnits.add(new MemoryUnit(Optional.of(new File(id, n, j))));
                     }
                     id += 1;
                 }
@@ -84,11 +84,11 @@ public class Day9Part2
                             final int freeMemoryRegionSize = findFreeMemoryRegionSize(memoryUnits, j);
                             if (freeMemoryRegionSize >= fileSize)
                             {
-                                for (int k = fileSize - 1; k >= 0; k--)
+                                for (int k = 1; k <= fileSize; k++)
                                 {
-                                    final MemoryUnit intermediateValue = memoryUnits[i - k];
-                                    memoryUnits[i - k] = memoryUnits[j + k];
-                                    memoryUnits[j + k] = intermediateValue;
+                                    final MemoryUnit intermediateValue = memoryUnits[i - fileSize + k];
+                                    memoryUnits[i - fileSize + k] = memoryUnits[j + k - 1];
+                                    memoryUnits[j + k - 1] = intermediateValue;
                                 }
                                 break;
                             }
