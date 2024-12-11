@@ -79,4 +79,27 @@ public class PuzzleInputReader
             throw new RuntimeException("Could not read resource file", e);
         }
     }
+
+    public static List<List<Long>> readInputAsLongs(final String resource, final String delimiterRegex)
+    {
+        try (final InputStream inputStream = PuzzleInputReader.class.getClassLoader().getResourceAsStream(resource);
+             final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream));
+             final BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+        {
+            final List<List<Long>> puzzleInput = new ArrayList<>();
+            String line = bufferedReader.readLine();
+            while (line != null && !line.isEmpty())
+            {
+                final String[] delimitedLine = line.split(delimiterRegex);
+                puzzleInput.add(Arrays.stream(delimitedLine).map(Long::parseLong).collect(Collectors.toList()));
+
+                line = bufferedReader.readLine();
+            }
+            return puzzleInput;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not read resource file", e);
+        }
+    }
 }
