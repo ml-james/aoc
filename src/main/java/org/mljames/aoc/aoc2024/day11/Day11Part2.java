@@ -28,18 +28,18 @@ public class Day11Part2
         for (int i = 0; i < BLINKS; i++)
         {
             final Set<Long> stones = new HashSet<>(stonesByFrequency.keySet());
-            final Map<Long, Long> intermediateStonesByFrequency = new HashMap<>();
+            final Map<Long, Long> nextBlinkStonesByFrequency = new HashMap<>();
             for (final long stone : stones)
             {
                 final List<Long> afterBlinkStones = blink(stone);
                 final long numberOfPreBlinkStones = stonesByFrequency.get(stone);
                 for (final long afterBlinkStone : afterBlinkStones)
                 {
-                    intermediateStonesByFrequency.merge(afterBlinkStone, numberOfPreBlinkStones, Long::sum);
+                    nextBlinkStonesByFrequency.merge(afterBlinkStone, numberOfPreBlinkStones, Long::sum);
                 }
-                stonesByFrequency.remove(stone);
             }
-            stonesByFrequency.putAll(intermediateStonesByFrequency);
+            stonesByFrequency.clear();
+            stonesByFrequency.putAll(nextBlinkStonesByFrequency);
         }
 
         LOGGER.info("After blinking {} times there are {} stones, calculated in {}ms.", BLINKS, calculateTotalStones(stonesByFrequency), System.currentTimeMillis() - start);
@@ -82,7 +82,6 @@ public class Day11Part2
         {
             total += frequency;
         }
-
         return total;
     }
 }

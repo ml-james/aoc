@@ -4,14 +4,9 @@ import org.mljames.aoc.PuzzleInputReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.stream.Collectors;
 
 public class Day11Part1
 {
@@ -25,19 +20,22 @@ public class Day11Part1
 
         final List<Long> input = PuzzleInputReader.readInputAsLongs("aoc2024/day11/part1/puzzle_input.txt", " ").getFirst();
 
-        Queue<Long> stones = new ArrayDeque<>(input);
+        LinkedList<Long> stones = new LinkedList<>(input);
         for (int i = 0; i < BLINKS; i++)
         {
             int j = 0;
-            int endIndex = stones.size();
-            LOGGER.info("Blink {}.", i);
-            while (j < endIndex)
+            while (j < stones.size())
             {
-                final List<Long> afterBlinkStones = blink(Objects.requireNonNull(stones.poll()));
-                stones.addAll(afterBlinkStones);
-                j++;
+                final List<Long> afterBlinkStones = blink(stones.get(j));
+                int insertionIndex = j;
+                for (final long stone : afterBlinkStones)
+                {
+                    stones.add(insertionIndex + 1, stone);
+                    insertionIndex = insertionIndex + 1;
+                }
+                stones.remove(j);
+                j = j + afterBlinkStones.size();
             }
-            LOGGER.info("Distinct numbers in my list {}.", new HashSet<>(stones).size());
         }
 
         LOGGER.info("After blinking {} times there are {} stones, calculated in {}ms.", BLINKS, stones.size(), System.currentTimeMillis() - start);
