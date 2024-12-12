@@ -28,18 +28,18 @@ public class Day11Part2
         for (int i = 0; i < BLINKS; i++)
         {
             final Set<Long> stones = new HashSet<>(stonesByFrequency.keySet());
-            final Map<Long, Long> nextBlinkStonesByFrequency = new HashMap<>();
+            final Map<Long, Long> postBlinkStonesByFrequency = new HashMap<>();
             for (final long stone : stones)
             {
-                final List<Long> afterBlinkStones = blink(stone);
-                final long numberOfPreBlinkStones = stonesByFrequency.get(stone);
-                for (final long afterBlinkStone : afterBlinkStones)
+                final List<Long> postBlinkStones = blink(stone);
+                final long frequencyOfPreBlinkStone = stonesByFrequency.get(stone);
+                for (final long postBlinkStone : postBlinkStones)
                 {
-                    nextBlinkStonesByFrequency.merge(afterBlinkStone, numberOfPreBlinkStones, Long::sum);
+                    postBlinkStonesByFrequency.merge(postBlinkStone, frequencyOfPreBlinkStone, Long::sum);
                 }
             }
             stonesByFrequency.clear();
-            stonesByFrequency.putAll(nextBlinkStonesByFrequency);
+            stonesByFrequency.putAll(postBlinkStonesByFrequency);
         }
 
         LOGGER.info("After blinking {} times there are {} stones, calculated in {}ms.", BLINKS, calculateTotalStones(stonesByFrequency), System.currentTimeMillis() - start);
@@ -61,14 +61,16 @@ public class Day11Part2
         if (stone == 0)
         {
             afterBlink.add(1L);
-        } else if (Long.toString(stone).length() % 2 == 0)
+        }
+        else if (Long.toString(stone).length() % 2 == 0)
         {
             final String s = Long.toString(stone);
             int length = s.length();
             int splitIndex = length / 2;
             afterBlink.add(Long.parseLong(s.substring(0, splitIndex)));
             afterBlink.add(Long.parseLong(s.substring(splitIndex)));
-        } else
+        }
+        else
         {
             afterBlink.add(stone * 2024L);
         }

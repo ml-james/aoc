@@ -26,15 +26,15 @@ public class Day11Part1
             int j = 0;
             while (j < stones.size())
             {
-                final List<Long> afterBlinkStones = blink(stones.get(j));
+                final List<Long> postBlinkStones = blink(stones.get(j));
                 int insertionIndex = j;
-                for (final long stone : afterBlinkStones)
+                for (final long postBlinkStone : postBlinkStones)
                 {
-                    stones.add(insertionIndex + 1, stone);
+                    stones.add(insertionIndex + 1, postBlinkStone);
                     insertionIndex = insertionIndex + 1;
                 }
                 stones.remove(j);
-                j = j + afterBlinkStones.size();
+                j = j + postBlinkStones.size();
             }
         }
 
