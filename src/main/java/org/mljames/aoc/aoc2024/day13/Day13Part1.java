@@ -26,7 +26,7 @@ public class Day13Part1
 
         final int clawMachines = input.size() / 3;
 
-        int tokenSpent = 0;
+        int tokensSpent = 0;
         for (int i = 0; i < clawMachines; i++)
         {
             final int x1 = extractInt(getButtonXValue.matcher(input.get(i * 3)));
@@ -43,11 +43,11 @@ public class Day13Part1
             {
                 final int b = bNumerator / bDenominator;
                 final int a = (y3 - b * y2) / y1;
-                tokenSpent += (b + a * 3);
+                tokensSpent += (b + a * 3);
             }
         }
 
-        LOGGER.info("The fewest tokens you would have to spend to win all possible prizes is equal to: {}, calculated in {}ms.", tokenSpent, System.currentTimeMillis() - start);
+        LOGGER.info("The fewest tokens you would have to spend to win all possible prizes is equal to: {}, calculated in {}ms.", tokensSpent, System.currentTimeMillis() - start);
     }
 
     private static int extractInt(final Matcher matcher)
