@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -190,38 +191,66 @@ public class Day12Part2
 
         private int getFencePrice()
         {
-            int sides = 0;
+            final Map<Integer, List<Plot>> plotsGroupedByY = collectPlotsBy(plots, false);
+            int topSides = calculateSides(plotsGroupedByY, Boundary.TOP);
+            int bottomSides = calculateSides(plotsGroupedByY, Boundary.BOTTOM);
 
-            final Map<Integer, List<Plot>> sortedPlotsByY = plots.stream().collect(Collectors.groupingBy(plot -> plot.y));
-            final List<Integer> rowIndexes = sortedPlotsByY.keySet().stream().sorted().toList();
+            final Map<Integer, List<Plot>> plotsGroupedByX = collectPlotsBy(plots, true);
+            int leftSides = calculateSides(plotsGroupedByX, Boundary.LEFT);
+            int rightSides = calculateSides(plotsGroupedByX, Boundary.RIGHT);
+
+            return plots.size() * (topSides + bottomSides + leftSides + rightSides);
+        }
+
+        private Map<Integer, List<Plot>> collectPlotsBy(final List<Plot> plots, final boolean groupByX)
+        {
+            final Map<Integer, List<Plot>> collectedPlots = new HashMap<>();
+            if (groupByX)
+            {
+                final Map<Integer, List<Plot>> plotsGroupedByX = plots.stream().collect(Collectors.groupingBy(plot -> plot.x));
+                for (final Map.Entry<Integer, List<Plot>> entry : plotsGroupedByX.entrySet())
+                {
+                    final List<Plot> sortedPlotsByY = new ArrayList<>(entry.getValue());
+                    sortedPlotsByY.sort(Comparator.comparingInt((Plot p) -> p.y));
+                    collectedPlots.put(entry.getKey(), sortedPlotsByY);
+                }
+            }
+            else
+            {
+                final Map<Integer, List<Plot>> plotsGroupedByY = plots.stream().collect(Collectors.groupingBy(plot -> plot.y));
+                for (final Map.Entry<Integer, List<Plot>> entry : plotsGroupedByY.entrySet())
+                {
+                    final List<Plot> sortedPlotsByX = new ArrayList<>(entry.getValue());
+                    sortedPlotsByX.sort(Comparator.comparingInt((Plot p) -> p.x));
+                    collectedPlots.put(entry.getKey(), sortedPlotsByX);
+                }
+            }
+            return collectedPlots;
+        }
+
+        private int calculateSides(final Map<Integer, List<Plot>> collect, final Boundary boundaryToCheck)
+        {
+            int sides = 0;
+            final List<Integer> rowIndexes = collect.keySet().stream().sorted().toList();
             for (final Integer rowIndex : rowIndexes)
             {
-                final List<Plot> row = sortedPlotsByY.get(rowIndex);
-                row.sort(Comparator.comparingInt((Plot p) -> p.x));
+                final List<Plot> row = collect.get(rowIndex);
 
                 Plot currentPlot = row.getFirst();
-                sides += (int) currentPlot.boundarys.stream().filter(b -> b == Boundary.TOP || b == Boundary.BOTTOM).count();
+                sides += (int) currentPlot.boundarys.stream().filter(b -> b == boundaryToCheck).count();
                 for (int j = 1; j < row.size(); j++)
                 {
                     final Plot nextPlot = row.get(j);
                     if (!plotsAreAdjacent(currentPlot, nextPlot))
                     {
-                        if (nextPlot.containsBoundary(Boundary.TOP))
-                        {
-                            sides += 1;
-                        }
-                        if (nextPlot.containsBoundary(Boundary.BOTTOM))
+                        if (nextPlot.containsBoundary(boundaryToCheck))
                         {
                             sides += 1;
                         }
                     }
                     else
                     {
-                        if (!currentPlot.containsBoundary(Boundary.TOP) && nextPlot.containsBoundary(Boundary.TOP))
-                        {
-                            sides += 1;
-                        }
-                        if (!currentPlot.containsBoundary(Boundary.BOTTOM) && nextPlot.containsBoundary(Boundary.BOTTOM))
+                        if (!currentPlot.containsBoundary(boundaryToCheck) && nextPlot.containsBoundary(boundaryToCheck))
                         {
                             sides += 1;
                         }
@@ -229,56 +258,12 @@ public class Day12Part2
                     currentPlot = nextPlot;
                 }
             }
-
-            final Map<Integer, List<Plot>> sortedPlotsByX = plots.stream().collect(Collectors.groupingBy(plot -> plot.x));
-            final List<Integer> columnIndexes = sortedPlotsByX.keySet().stream().sorted().toList();
-            for (final Integer columnIndex : columnIndexes)
-            {
-                final List<Plot> column = sortedPlotsByX.get(columnIndex);
-                column.sort(Comparator.comparingInt((Plot p) -> p.y));
-
-                Plot currentPlot = column.getFirst();
-                sides += (int) currentPlot.boundarys.stream().filter(b -> b == Boundary.RIGHT || b == Boundary.LEFT).count();
-                for (int j = 1; j < column.size(); j++)
-                {
-                    final Plot nextPlot = column.get(j);
-                    if (!plotsAreAdjacent(currentPlot, nextPlot))
-                    {
-                        if (nextPlot.containsBoundary(Boundary.RIGHT))
-                        {
-                            sides += 1;
-                        }
-                        if (nextPlot.containsBoundary(Boundary.LEFT))
-                        {
-                            sides += 1;
-                        }
-                    }
-                    else
-                    {
-                        if (!currentPlot.containsBoundary(Boundary.RIGHT) && nextPlot.containsBoundary(Boundary.RIGHT))
-                        {
-                            sides += 1;
-                        }
-                        if (!currentPlot.containsBoundary(Boundary.LEFT) && nextPlot.containsBoundary(Boundary.LEFT))
-                        {
-                            sides += 1;
-                        }
-                    }
-                    currentPlot = nextPlot;
-                }
-            }
-
-            return plots.size() * sides;
+            return sides;
         }
 
         private boolean plotsAreAdjacent(final Plot plot1, final Plot plot2)
         {
             return (plot1.y == plot2.y && Math.abs(plot1.x - plot2.x) == 1) || (plot1.x == plot2.x && Math.abs(plot1.y - plot2.y) == 1);
-        }
-
-        private boolean plotsShareBoundary(final Plot plot1, final Plot plot2, final Boundary boundary)
-        {
-            return plotsAreAdjacent(plot1, plot2) && plot1.boundarys.contains(boundary) && plot2.boundarys.contains(boundary);
         }
     }
 
