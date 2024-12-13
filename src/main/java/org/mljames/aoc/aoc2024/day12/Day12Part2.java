@@ -227,13 +227,13 @@ public class Day12Part2
             return collectedPlots;
         }
 
-        private int calculateSides(final Map<Integer, List<Plot>> collect, final Boundary boundaryToCheck)
+        private int calculateSides(final Map<Integer, List<Plot>> groupedPlots, final Boundary boundaryToCheck)
         {
             int sides = 0;
-            final List<Integer> rowIndexes = collect.keySet().stream().sorted().toList();
+            final List<Integer> rowIndexes = groupedPlots.keySet().stream().sorted().toList();
             for (final Integer rowIndex : rowIndexes)
             {
-                final List<Plot> row = collect.get(rowIndex);
+                final List<Plot> row = groupedPlots.get(rowIndex);
 
                 Plot currentPlot = row.getFirst();
                 sides += (int) currentPlot.boundarys.stream().filter(b -> b == boundaryToCheck).count();
