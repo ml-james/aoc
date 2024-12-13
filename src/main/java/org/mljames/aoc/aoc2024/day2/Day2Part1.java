@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Optional;
 
 public class Day2Part1
 {
@@ -16,7 +15,7 @@ public class Day2Part1
     {
         final long start = System.currentTimeMillis();
 
-        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day2/part1/puzzle_input.txt", "\\s{1}");
+        final List<List<String>> input = PuzzleInputReader.readInputAsStrings("aoc2024/day2/part1/puzzle_input.txt", "\\s{1}");
 
         int safeCount = 0;
         for (final List<String> row : input)

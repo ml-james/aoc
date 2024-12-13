@@ -5,11 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Day3Part2
 {
@@ -25,7 +23,7 @@ public class Day3Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day3/part2/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day3/part2/puzzle_input.txt");
 
         final String inputConcat = String.join("", input);
 

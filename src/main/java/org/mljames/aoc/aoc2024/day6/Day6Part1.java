@@ -17,7 +17,7 @@ public class Day6Part1
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day6/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day6/part1/puzzle_input.txt");
 
         final int width = input.getFirst().length();
         final int height = input.size();
@@ -60,29 +60,29 @@ public class Day6Part1
         {
             final char[][] grid = new char[height][width];
             Vector startingVector = null;
-            for (int i = 0; i < height; i++)
+            for (int y = 0; y < height; y++)
             {
-                final String row = input.get(i);
+                final String row = input.get(y);
 
-                for (int j = 0; j < width; j++)
+                for (int x = 0; x < width; x++)
                 {
-                    if (row.charAt(j) == '^')
+                    if (row.charAt(x) == '^')
                     {
-                        startingVector = new Vector(i, j, Direction.UP);
+                        startingVector = new Vector(y, x, Direction.UP);
                     }
-                    if (row.charAt(j) == '>')
+                    if (row.charAt(x) == '>')
                     {
-                        startingVector = new Vector(i, j, Direction.RIGHT);
+                        startingVector = new Vector(y, x, Direction.RIGHT);
                     }
-                    if (row.charAt(j) == '<')
+                    if (row.charAt(x) == '<')
                     {
-                        startingVector = new Vector(i, j, Direction.LEFT);
+                        startingVector = new Vector(y, x, Direction.LEFT);
                     }
-                    if (row.charAt(j) == 'v')
+                    if (row.charAt(x) == 'v')
                     {
-                        startingVector = new Vector(i, j, Direction.DOWN);
+                        startingVector = new Vector(y, x, Direction.DOWN);
                     }
-                    grid[i][j] = row.charAt(j);
+                    grid[y][x] = row.charAt(x);
                 }
             }
 

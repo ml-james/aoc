@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PuzzleInputReader
 {
-    public static List<String> readInput(final String resource)
+    public static List<String> readInputAsStrings(final String resource)
     {
         try (final InputStream inputStream = PuzzleInputReader.class.getClassLoader().getResourceAsStream(resource);
              final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream));
@@ -34,7 +33,7 @@ public class PuzzleInputReader
         }
     }
 
-    public static List<List<String>> readInput(final String resource, final String delimiterRegex)
+    public static List<List<String>> readInputAsStrings(final String resource, final String delimiterRegex)
     {
         try (final InputStream inputStream = PuzzleInputReader.class.getClassLoader().getResourceAsStream(resource);
              final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream));

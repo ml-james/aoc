@@ -19,21 +19,21 @@ public class Day8Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day8/part2/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day8/part2/puzzle_input.txt");
 
         final int width = input.getFirst().length();
         final int height = input.size();
 
         final Map<String, Grid> gridsByAntennaType = new HashMap<>();
-        for (int i = 0; i < height; i++)
+        for (int y = 0; y < height; y++)
         {
-            for (int j = 0; j < width; j++)
+            for (int x = 0; x < width; x++)
             {
-                final String type = Character.toString(input.get(i).charAt(j));
+                final String type = Character.toString(input.get(y).charAt(x));
                 if (!type.equals(EMPTY_SPACE))
                 {
                     gridsByAntennaType.computeIfAbsent(type, val -> new Grid(height, width));
-                    gridsByAntennaType.get(type).addAntenna(new Position(i, j));
+                    gridsByAntennaType.get(type).addAntenna(new Position(y, x));
                 }
             }
         }

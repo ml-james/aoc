@@ -17,7 +17,7 @@ public class Day4Part1
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day4/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day4/part1/puzzle_input.txt");
 
         final int width = input.getFirst().length();
         final int height = input.size();
@@ -25,21 +25,21 @@ public class Day4Part1
         final char[][] grid = createGrid(input, height, width);
 
         int xmasCount = 0;
-        for (int i = 0; i < height; i++)
+        for (int y = 0; y < height; y++)
         {
-            for (int j = 0; j < width; j++)
+            for (int x = 0; x < width; x++)
             {
-                if (j + XMAS.length() <= width)
+                if (x + XMAS.length() <= width)
                 {
-                    xmasCount += checkHorizontal(i, j, grid);
+                    xmasCount += checkHorizontal(y, x, grid);
                 }
-                if (i + XMAS.length() <= height)
+                if (y + XMAS.length() <= height)
                 {
-                    xmasCount += checkVertical(i, j, grid);
+                    xmasCount += checkVertical(y, x, grid);
                 }
-                if (i + XMAS.length() <= width && j + XMAS.length() <= height)
+                if (y + XMAS.length() <= width && x + XMAS.length() <= height)
                 {
-                    xmasCount += checkDiagonals(i, j, grid);
+                    xmasCount += checkDiagonals(y, x, grid);
                 }
             }
         }
@@ -47,10 +47,10 @@ public class Day4Part1
         LOGGER.info("The number of times xmas appears in the crossword is {}, calculated in {}ms.", xmasCount, System.currentTimeMillis() - start);
     }
 
-    private static int checkDiagonals(final int i, final int j, final char[][] grid)
+    private static int checkDiagonals(final int y, final int x, final char[][] grid)
     {
-        final String oneDiagonal = Character.toString(grid[i][j]) + grid[i + 1][j + 1] + grid[i + 2][j + 2] + grid[i + 3][j + 3];
-        final String otherDiagonal = Character.toString(grid[i + 3][j]) + grid[i + 2][j + 1] + grid[i + 1][j + 2] + grid[i][j + 3];
+        final String oneDiagonal = Character.toString(grid[y][x]) + grid[y + 1][x + 1] + grid[y + 2][x + 2] + grid[y + 3][x + 3];
+        final String otherDiagonal = Character.toString(grid[y + 3][x]) + grid[y + 2][x + 1] + grid[y + 1][x + 2] + grid[y][x + 3];
 
         int diagonalsTotal = 0;
         if (oneDiagonal.equals(XMAS) || oneDiagonal.equals(SAMX))
@@ -65,11 +65,11 @@ public class Day4Part1
     }
 
     private static int checkVertical(
-            final int i,
-            final int j,
+            final int y,
+            final int x,
             final char[][] grid)
     {
-        final String vertical = Character.toString(grid[i][j]) + grid[i + 1][j] + grid[i + 2][j] + grid[i + 3][j];
+        final String vertical = Character.toString(grid[y][x]) + grid[y + 1][x] + grid[y + 2][x] + grid[y + 3][x];
 
         if (vertical.equals(XMAS) || vertical.equals(SAMX))
         {
@@ -79,11 +79,11 @@ public class Day4Part1
     }
 
     private static int checkHorizontal(
-            final int i,
-            final int j,
+            final int y,
+            final int x,
             final char[][] grid)
     {
-        final String horizontal = Character.toString(grid[i][j]) + grid[i][j + 1] + grid[i][j + 2] + grid[i][j + 3];
+        final String horizontal = Character.toString(grid[y][x]) + grid[y][x + 1] + grid[y][x + 2] + grid[y][x + 3];
 
         if (horizontal.equals(XMAS) || horizontal.equals(SAMX))
         {
@@ -96,13 +96,13 @@ public class Day4Part1
     {
         final char[][] grid = new char[height][width];
 
-        for (int i = 0; i < height; i++)
+        for (int y = 0; y < height; y++)
         {
-            final String row = input.get(i);
+            final String row = input.get(y);
 
-            for (int j = 0; j < width; j++)
+            for (int x = 0; x < width; x++)
             {
-                grid[i][j] = row.charAt(j);
+                grid[y][x] = row.charAt(x);
             }
         }
         return grid;

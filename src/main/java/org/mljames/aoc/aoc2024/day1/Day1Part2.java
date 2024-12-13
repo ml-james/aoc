@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class Day1Part2
 {
@@ -18,7 +17,7 @@ public class Day1Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part2/puzzle_input.txt","\\s{3}");
+        final List<List<String>> input = PuzzleInputReader.readInputAsStrings("aoc2024/day1/part2/puzzle_input.txt","\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
         final Map<Integer, Integer> listBValueOccurrences = new HashMap<>();

@@ -20,7 +20,7 @@ public class Day5Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<List<String>> pageOrderingRules = PuzzleInputReader.readInput("aoc2024/day5/part2/puzzle_input1.txt", "\\|");
+        final List<List<String>> pageOrderingRules = PuzzleInputReader.readInputAsStrings("aoc2024/day5/part2/puzzle_input1.txt", "\\|");
         final List<List<Integer>> candidateUpdates = PuzzleInputReader.readInputAsInts("aoc2024/day5/part2/puzzle_input2.txt", ",");
 
         final Map<Integer, Set<Integer>> pageOrderingRulesByPage = new HashMap<>();

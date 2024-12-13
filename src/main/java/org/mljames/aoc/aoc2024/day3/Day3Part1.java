@@ -18,7 +18,7 @@ public class Day3Part1
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day3/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day3/part1/puzzle_input.txt");
 
         final String inputConcat = String.join("", input);
 

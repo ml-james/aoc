@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Day1Part1
 {
@@ -16,7 +15,7 @@ public class Day1Part1
     {
         final long start = System.currentTimeMillis();
 
-        final List<List<String>> input = PuzzleInputReader.readInput("aoc2024/day1/part1/puzzle_input.txt","\\s{3}");
+        final List<List<String>> input = PuzzleInputReader.readInputAsStrings("aoc2024/day1/part1/puzzle_input.txt","\\s{3}");
 
         final List<Integer> listA = new ArrayList<>();
         final List<Integer> listB = new ArrayList<>();

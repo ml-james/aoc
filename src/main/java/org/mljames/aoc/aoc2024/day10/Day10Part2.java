@@ -14,19 +14,19 @@ public class Day10Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day10/part2/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day10/part2/puzzle_input.txt");
 
         final int width = input.getFirst().length();
         final int height = input.size();
 
         final Counter counter = new Counter();
-        for (int j = 0; j < height; j++)
+        for (int y = 0; y < height; y++)
         {
-            for (int i = 0; i < width; i++)
+            for (int x = 0; x < width; x++)
             {
-                if (Character.getNumericValue(input.get(j).charAt(i)) == 0)
+                if (Character.getNumericValue(input.get(y).charAt(x)) == 0)
                 {
-                    findDistinctHikingTrails(input, j, i, height, width, 0, counter);
+                    findDistinctHikingTrails(input, y, x, height, width, 0, counter);
                 }
             }
         }
@@ -36,17 +36,17 @@ public class Day10Part2
 
     private static void findDistinctHikingTrails(
             final List<String> input,
-            final int j,
-            final int i,
+            final int y,
+            final int x,
             final int height,
             final int width,
             final int currentValue,
             final Counter counter)
     {
-        move(input, j, i + 1, height, width, currentValue, counter);
-        move(input, j, i - 1, height, width, currentValue, counter);
-        move(input, j + 1, i, height, width, currentValue, counter);
-        move(input, j - 1, i, height, width, currentValue, counter);
+        move(input, y, x + 1, height, width, currentValue, counter);
+        move(input, y, x - 1, height, width, currentValue, counter);
+        move(input, y + 1, x, height, width, currentValue, counter);
+        move(input, y - 1, x, height, width, currentValue, counter);
     }
 
     private static void move(
@@ -75,9 +75,9 @@ public class Day10Part2
         }
     }
 
-    private static boolean positionWithinBounds(final int j, final int i, final int height, final int width)
+    private static boolean positionWithinBounds(final int y, final int x, final int height, final int width)
     {
-        return j >= 0 && j < height && i >= 0 && i < width;
+        return y >= 0 && y < height && x >= 0 && x < width;
     }
 
     private static class Counter

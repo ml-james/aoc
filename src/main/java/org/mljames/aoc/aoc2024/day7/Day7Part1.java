@@ -19,7 +19,7 @@ public class Day7Part1
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day7/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day7/part1/puzzle_input.txt");
 
         long sumOfTestValues = 0L;
         for (final String equation : input)

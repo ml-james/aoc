@@ -16,7 +16,7 @@ public class Day9Part1
     {
         final long start = System.currentTimeMillis();
         
-        final List<String> input = PuzzleInputReader.readInput("aoc2024/day9/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day9/part1/puzzle_input.txt");
 
         final Memory memory = Memory.createMemory(input.getFirst());
 
