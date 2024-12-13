@@ -20,9 +20,12 @@ public class PuzzleInputReader
         {
             final List<String> puzzleInput = new ArrayList<>();
             String line = bufferedReader.readLine();
-            while (line != null && !line.isEmpty())
+            while (line != null)
             {
-                puzzleInput.add(line);
+                if (!line.isEmpty())
+                {
+                    puzzleInput.add(line);
+                }
                 line = bufferedReader.readLine();
             }
             return puzzleInput;
