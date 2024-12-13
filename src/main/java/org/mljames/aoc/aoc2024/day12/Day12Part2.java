@@ -104,8 +104,7 @@ public class Day12Part2
                 final int x,
                 final int height,
                 final int width,
-                final String plant
-        )
+                final String plant)
         {
             if (isPositionWithinBounds(y, x, height, width))
             {
@@ -191,18 +190,18 @@ public class Day12Part2
 
         private int getFencePrice()
         {
-            final Map<Integer, List<Plot>> plotsGroupedByY = collectPlotsBy(plots, false);
+            final Map<Integer, List<Plot>> plotsGroupedByY = groupPlotsBy(plots, false);
             int topSides = calculateSides(plotsGroupedByY, Boundary.TOP);
             int bottomSides = calculateSides(plotsGroupedByY, Boundary.BOTTOM);
 
-            final Map<Integer, List<Plot>> plotsGroupedByX = collectPlotsBy(plots, true);
+            final Map<Integer, List<Plot>> plotsGroupedByX = groupPlotsBy(plots, true);
             int leftSides = calculateSides(plotsGroupedByX, Boundary.LEFT);
             int rightSides = calculateSides(plotsGroupedByX, Boundary.RIGHT);
 
             return plots.size() * (topSides + bottomSides + leftSides + rightSides);
         }
 
-        private Map<Integer, List<Plot>> collectPlotsBy(final List<Plot> plots, final boolean groupByX)
+        private Map<Integer, List<Plot>> groupPlotsBy(final List<Plot> plots, final boolean groupByX)
         {
             final Map<Integer, List<Plot>> collectedPlots = new HashMap<>();
             if (groupByX)
