@@ -4,13 +4,15 @@ import org.mljames.aoc.PuzzleInputReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.Position;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Day12Part2
 {
@@ -83,6 +85,24 @@ public class Day12Part2
         {
             return y >= 0 && y < height && x >= 0 && x < width;
         }
+
+        private boolean isEdgePosition(final int y, final int x)
+        {
+            return isCornerPosition(y, x) && (y == 0 || y < height - 1 || x == 0 || x == width - 1);
+        }
+
+        private boolean isCornerPosition(final int y, final int x)
+        {
+            return (y == 0 && x == 0)
+                    || (y == 0 && x == width - 1)
+                    || (y == height - 1 && x == 0)
+                    || (y == height - 1 && x == width - 1);
+        }
+
+        public PlotBoundary getPlotBoundary(final Plot plot)
+        {
+            return new PlotBoundary(plot, Set.of());
+        }
     }
 
     private static Region findRegion(
@@ -133,47 +153,40 @@ public class Day12Part2
             this.plots.add(plot);
         }
 
-        private int getFencePrice(final Map map)
+        private int getFencePrice(final Day12Part2.Map map)
         {
-            Plot plot = plots.getFirst();
-            boolean recordXChange = false;
-            boolean recordYChange = false;
-            int sides = 4;
-            for (int i = 1; i < plots.size(); i++)
-            {
-                final Plot nextPlot = plots.get(i);
+            final java.util.Map<Integer, List<Plot>> sortedPlotsByY = plots.stream().collect(Collectors.groupingBy(plot -> plot.y));
 
-                if (nextPlot.x != plot.x)
+            int yCount = 0;
+            final List<Integer> rowIndexes = sortedPlotsByY.keySet().stream().sorted().toList();
+            for (int i = 0; i < rowIndexes.size(); i++)
+            {
+                final List<Plot> row = sortedPlotsByY.get(rowIndexes.get(i));
+                final List<PlotBoundary> plotBoundarys = new ArrayList<>();
+                for (final Plot plot : row)
                 {
-                    if (!recordXChange)
-                    {
-                        recordYChange = true;
-                    }
-                    else
-                    {
-                        sides += 1;
-                        recordYChange = true;
-                        recordXChange = false;
-                    }
+                    plotBoundarys.add(map.getPlotBoundary(plot));
                 }
-                else if (nextPlot.y != plot.y)
-                {
-                    if (!recordYChange)
-                    {
-                        recordXChange = true;
-                    }
-                    else
-                    {
-                        sides += 1;
-                        recordXChange = true;
-                        recordYChange = false;
-                    }
-                }
-                plot = nextPlot;
             }
-            return plots.size() * sides;
+
+            final java.util.Map<Integer, List<Plot>> sortedPlotsByX = plots.stream().collect(Collectors.groupingBy(plot -> plot.x));
+
+            int xCount = 0;
+            final List<Integer> columnIndexes = sortedPlotsByX.keySet().stream().sorted().toList();
+            for (int i = 0; i < columnIndexes.size(); i++)
+            {
+                final List<Plot> row = sortedPlotsByY.get(rowIndexes.get(i));
+                final List<PlotBoundary> plotBoundarys = new ArrayList<>();
+                for (final Plot plot : row)
+                {
+                    plotBoundarys.add(map.getPlotBoundary(plot));
+                }
+            }
+
+            return (xCount + yCount) * plots.size();
         }
     }
+
 
     private static final class Plot
     {
@@ -208,5 +221,25 @@ public class Day12Part2
         {
             return Objects.hash(y, x, plant);
         }
+    }
+
+    private final static class PlotBoundary
+    {
+        private final Plot plot;
+        private final Set<Boundary> boundarys;
+
+        private PlotBoundary(final Plot plot, final Set<Boundary> boundarys)
+        {
+            this.plot = plot;
+            this.boundarys = boundarys;
+        }
+    }
+
+    private enum Boundary
+    {
+        TOP,
+        RIGHT,
+        BOTTOM,
+        LEFT;
     }
 }

@@ -136,13 +136,13 @@ public class Day12Part1
             int perimeter = 0;
             for (final Plot plot : plots)
             {
-                perimeter += calculateRegionPerimeterDelta(map, plot);
+                perimeter += calculateRegionPerimeterContribution(map, plot);
             }
             return plots.size() * perimeter;
         }
     }
 
-    private static int calculateRegionPerimeterDelta(final Map map, final Plot plot)
+    private static int calculateRegionPerimeterContribution(final Map map, final Plot plot)
     {
         final List<Plot> neighbouringPlots = getNeighbouringPlots(map, plot);
         final int differentPlantNeighboursCount = (int) neighbouringPlots.stream().filter(p -> !p.plant.equals(plot.plant)).count();
