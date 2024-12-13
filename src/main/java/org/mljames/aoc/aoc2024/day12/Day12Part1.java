@@ -31,8 +31,7 @@ public class Day12Part1
         {
             for (int x = 0; x < width; x++)
             {
-                final String plant = map.getPlant(y, x);
-                final Plot currentPlot = new Plot(y, x, plant);
+                final Plot currentPlot = map.getPlot(y, x);
                 if (!seenPlots.contains(currentPlot))
                 {
                     regions.add(findRegion(currentPlot, map, seenPlots, new Region()));
@@ -40,39 +39,94 @@ public class Day12Part1
             }
         }
 
-        final int totalFencePrice = regions.stream().map(region -> region.getFencePrice(map)).mapToInt(Integer::intValue).sum();
+        final int totalFencePrice = regions.stream().map(Region::getFencePrice).mapToInt(Integer::intValue).sum();
 
         LOGGER.info("The total price of all fencing all regions is equal to: {}, calculated in {}ms.", totalFencePrice, System.currentTimeMillis() - start);
     }
 
     private static final class Map
     {
-        private final String[][] map;
+        private final Plot[][] map;
         private final int height;
         private final int width;
 
         private static Map createMap(final List<String> input, final int height, final int width)
         {
-            final String[][] map = new String[height][width];
+            final Plot[][] map = new Plot[height][width];
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    map[y][x] = Character.toString(input.get(y).charAt(x));
+                    final String plant = Character.toString(input.get(y).charAt(x));
+                    map[y][x] = new Plot(y, x, plant, calculateBoundaryForPlot(input, y, x, height, width, plant));
                 }
             }
-
             return new Map(map, height, width);
         }
 
-        private Map(final String[][] map, final int height, final int width)
+        private static Set<Boundary> calculateBoundaryForPlot(
+                final List<String> input,
+                final int y,
+                final int x,
+                final int height,
+                final int width,
+                final String plant)
+        {
+            final Set<Boundary> boundarys = new HashSet<>();
+
+            if (isPositionABoundary(input, y, x + 1, height, width, plant))
+            {
+                boundarys.add(Boundary.RIGHT);
+            }
+            if (isPositionABoundary(input, y, x - 1, height, width, plant))
+            {
+                boundarys.add(Boundary.LEFT);
+            }
+            if (isPositionABoundary(input, y + 1, x, height, width, plant))
+            {
+                boundarys.add(Boundary.TOP);
+            }
+            if (isPositionABoundary(input, y - 1, x, height, width, plant))
+            {
+                boundarys.add(Boundary.BOTTOM);
+            }
+
+            return boundarys;
+        }
+
+        private static boolean isPositionABoundary(
+                final List<String> input,
+                final int y,
+                final int x,
+                final int height,
+                final int width,
+                final String plant
+        )
+        {
+            if (isPositionWithinBounds(y, x, height, width))
+            {
+                if (!Character.toString(input.get(y).charAt(x)).equals(plant))
+                {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private static boolean isPositionWithinBounds(final int y, final int x, final int height, final int width)
+        {
+            return y >= 0 && y < height && x >= 0 && x < width;
+        }
+
+        private Map(final Plot[][] map, final int height, final int width)
         {
             this.map = map;
             this.height = height;
             this.width = width;
         }
 
-        private String getPlant(final int y, final int x)
+        private Plot getPlot(final int y, final int x)
         {
             return map[y][x];
         }
@@ -92,10 +146,10 @@ public class Day12Part1
         region.addPlot(startingPlot);
         seenPlots.add(startingPlot);
 
-        nextPlot(startingPlot.y, startingPlot.x + 1, startingPlot.plant, map, seenPlots, region);
-        nextPlot(startingPlot.y, startingPlot.x - 1, startingPlot.plant, map, seenPlots, region);
-        nextPlot(startingPlot.y + 1, startingPlot.x, startingPlot.plant, map, seenPlots, region);
-        nextPlot(startingPlot.y - 1, startingPlot.x, startingPlot.plant, map, seenPlots, region);
+        nextPlot(startingPlot.y, startingPlot.x + 1, startingPlot, map, seenPlots, region);
+        nextPlot(startingPlot.y, startingPlot.x - 1, startingPlot, map, seenPlots, region);
+        nextPlot(startingPlot.y + 1, startingPlot.x, startingPlot, map, seenPlots, region);
+        nextPlot(startingPlot.y - 1, startingPlot.x, startingPlot, map, seenPlots, region);
 
         return region;
     }
@@ -103,17 +157,17 @@ public class Day12Part1
     private static void nextPlot(
             final int nextY,
             final int nextX,
-            final String lastPlant,
+            final Plot lastPlot,
             final Map map,
             final Set<Plot> seenPlots,
             final Region region)
     {
         if (map.isPositionWithinBounds(nextY, nextX))
         {
-            final String nextPlant = map.getPlant(nextY, nextX);
-            if (nextPlant.equals(lastPlant))
+            final Plot nextPlant = map.getPlot(nextY, nextX);
+            if (nextPlant.plant.equals(lastPlot.plant))
             {
-                final Plot nextPlot = new Plot(nextY, nextX, nextPlant);
+                final Plot nextPlot = map.getPlot(nextY, nextX);
                 if (!seenPlots.contains(nextPlot))
                 {
                     findRegion(nextPlot, map, seenPlots, region);
@@ -131,45 +185,15 @@ public class Day12Part1
             this.plots.add(plot);
         }
 
-        private int getFencePrice(final Map map)
+        private int getFencePrice()
         {
             int perimeter = 0;
             for (final Plot plot : plots)
             {
-                perimeter += calculateRegionPerimeterContribution(map, plot);
+                perimeter += plot.boundaries.size();
             }
             return plots.size() * perimeter;
         }
-    }
-
-    private static int calculateRegionPerimeterContribution(final Map map, final Plot plot)
-    {
-        final List<Plot> neighbouringPlots = getNeighbouringPlots(map, plot);
-        final int differentPlantNeighboursCount = (int) neighbouringPlots.stream().filter(p -> !p.plant.equals(plot.plant)).count();
-
-        return differentPlantNeighboursCount + (4 - neighbouringPlots.size());
-    }
-
-    private static List<Plot> getNeighbouringPlots(final Map map, final Plot plot)
-    {
-        final List<Plot> neighbouringPlots = new ArrayList<>();
-        if (map.isPositionWithinBounds(plot.y, plot.x + 1))
-        {
-            neighbouringPlots.add(new Plot(plot.y, plot.x + 1, map.getPlant(plot.y, plot.x + 1)));
-        }
-        if (map.isPositionWithinBounds(plot.y, plot.x - 1))
-        {
-            neighbouringPlots.add(new Plot(plot.y, plot.x - 1, map.getPlant(plot.y, plot.x - 1)));
-        }
-        if (map.isPositionWithinBounds(plot.y + 1, plot.x))
-        {
-            neighbouringPlots.add(new Plot(plot.y + 1, plot.x, map.getPlant(plot.y + 1, plot.x)));
-        }
-        if (map.isPositionWithinBounds(plot.y - 1, plot.x))
-        {
-            neighbouringPlots.add(new Plot(plot.y - 1, plot.x, map.getPlant(plot.y - 1, plot.x)));
-        }
-        return neighbouringPlots;
     }
 
     private static final class Plot
@@ -177,12 +201,14 @@ public class Day12Part1
         private final int y;
         private final int x;
         private final String plant;
+        private final Set<Boundary> boundaries;
 
-        private Plot(final int y, final int x, final String plant)
+        private Plot(final int y, final int x, final String plant, final Set<Boundary> boundaries)
         {
             this.y = y;
             this.x = x;
             this.plant = plant;
+            this.boundaries = boundaries;
         }
 
         @Override
@@ -197,13 +223,21 @@ public class Day12Part1
                 return false;
             }
             final Plot plot = (Plot) o;
-            return y == plot.y && x == plot.x && Objects.equals(plant, plot.plant);
+            return y == plot.y && x == plot.x && Objects.equals(plant, plot.plant) && Objects.equals(boundaries, plot.boundaries);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(y, x, plant);
+            return Objects.hash(y, x, plant, boundaries);
         }
+    }
+
+    private enum Boundary
+    {
+        TOP,
+        RIGHT,
+        BOTTOM,
+        LEFT;
     }
 }
