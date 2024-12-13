@@ -5,20 +5,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
-public class Day12Part1
+public class Day12Part2
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Day12Part1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day12Part2.class);
 
     public static void main(String[] args)
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day12/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day12/part2/puzzle_input.txt");
 
         final int width = input.getFirst().length();
         final int height = input.size();
@@ -40,7 +42,7 @@ public class Day12Part1
             }
         }
 
-        final int totalFencePrice = regions.stream().map(region -> region.getFencePrice(map)).mapToInt(Integer::intValue).sum();
+        final int totalFencePrice = regions.stream().map(Region::getFencePrice).mapToInt(Integer::intValue).sum();
 
         LOGGER.info("The total price of all fencing all regions is equal to: {}, calculated in {}ms.", totalFencePrice, System.currentTimeMillis() - start);
     }
@@ -131,45 +133,10 @@ public class Day12Part1
             this.plots.add(plot);
         }
 
-        private int getFencePrice(final Map map)
+        private int getFencePrice()
         {
-            int perimeter = 0;
-            for (final Plot plot : plots)
-            {
-                perimeter += calculateRegionPerimeterDelta(map, plot);
-            }
-            return plots.size() * perimeter;
+            return plots.size();
         }
-    }
-
-    private static int calculateRegionPerimeterDelta(final Map map, final Plot plot)
-    {
-        final List<Plot> neighbouringPlots = getNeighbouringPlots(map, plot);
-        final int differentPlantNeighboursCount = (int) neighbouringPlots.stream().filter(p -> !p.plant.equals(plot.plant)).count();
-
-        return differentPlantNeighboursCount + (4 - neighbouringPlots.size());
-    }
-
-    private static List<Plot> getNeighbouringPlots(final Map map, final Plot plot)
-    {
-        final List<Plot> neighbouringPlots = new ArrayList<>();
-        if (map.isPositionWithinBounds(plot.y, plot.x + 1))
-        {
-            neighbouringPlots.add(new Plot(plot.y, plot.x + 1, map.getPlant(plot.y, plot.x + 1)));
-        }
-        if (map.isPositionWithinBounds(plot.y, plot.x - 1))
-        {
-            neighbouringPlots.add(new Plot(plot.y, plot.x - 1, map.getPlant(plot.y, plot.x - 1)));
-        }
-        if (map.isPositionWithinBounds(plot.y + 1, plot.x))
-        {
-            neighbouringPlots.add(new Plot(plot.y + 1, plot.x, map.getPlant(plot.y + 1, plot.x)));
-        }
-        if (map.isPositionWithinBounds(plot.y - 1, plot.x))
-        {
-            neighbouringPlots.add(new Plot(plot.y - 1, plot.x, map.getPlant(plot.y - 1, plot.x)));
-        }
-        return neighbouringPlots;
     }
 
     private static final class Plot
