@@ -39,7 +39,7 @@ public class Day13Part2
             final long bNumerator = (x3 * y1) - (x1 * y3);
             final long bDenominator = (x2 * y1) - (x1 * y2);
 
-            if (bDenominator != 0 && bNumerator % bDenominator == 0)
+            if (bNumerator % bDenominator == 0)
             {
                 final long b = bNumerator / bDenominator;
                 final long a = (y3 - b * y2) / y1;

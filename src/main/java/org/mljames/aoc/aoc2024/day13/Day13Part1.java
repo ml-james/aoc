@@ -39,7 +39,7 @@ public class Day13Part1
             final int bNumerator = (x3 * y1) - (x1 * y3);
             final int bDenominator = (x2 * y1) - (x1 * y2);
 
-            if (bDenominator != 0 && bNumerator % bDenominator == 0)
+            if (bNumerator % bDenominator == 0)
             {
                 final int b = bNumerator / bDenominator;
                 final int a = (y3 - b * y2) / y1;
