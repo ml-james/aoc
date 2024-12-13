@@ -22,72 +22,104 @@ public class Day10Part1
         final int width = input.getFirst().length();
         final int height = input.size();
 
-        final Counter counter = new Counter();
-        for (int y = 0; y < height; y++)
+        final Map map = Map.createMap(input, height, width);
+
+        LOGGER.info("The total score for all of trail heads is: {}, calculated in {}ms.", map.findDistinctTrailHeadSummits(), System.currentTimeMillis() - start);
+    }
+
+    private static final class Map
+    {
+        private final int[][] map;
+        private final int height;
+        private final int width;
+
+        private static Map createMap(final List<String> input, final int height, final int width)
         {
-            for (int x = 0; x < width; x++)
+            final int[][] map = new int[height][width];
+            for (int y = 0; y < height; y++)
             {
-                if (Character.getNumericValue(input.get(y).charAt(x)) == 0)
+                for (int x = 0; x < width; x++)
                 {
-                    findDistinctTrailHeadSummits(input, y, x, height, width, 0, new HashSet<>(), counter);
+                    map[y][x] = Character.getNumericValue(input.get(y).charAt(x));
                 }
             }
+            return new Map(map, height, width);
         }
 
-        LOGGER.info("The total score for all of trail heads is: {}, calculated in {}ms.", counter.count, System.currentTimeMillis() - start);
-    }
-
-    private static void findDistinctTrailHeadSummits(
-            final List<String> input,
-            final int y,
-            final int x,
-            final int height,
-            final int width,
-            final int currentValue,
-            final Set<Position> trailHeadSummitsVisited,
-            final Counter counter)
-    {
-        move(input, y, x + 1, height, width, currentValue, trailHeadSummitsVisited, counter);
-        move(input, y, x - 1, height, width, currentValue, trailHeadSummitsVisited, counter);
-        move(input, y + 1, x, height, width, currentValue, trailHeadSummitsVisited, counter);
-        move(input, y - 1, x, height, width, currentValue, trailHeadSummitsVisited, counter);
-    }
-
-    private static void move(
-            final List<String> input,
-            final int newY,
-            final int newX,
-            final int height,
-            final int width,
-            final int currentValue,
-            final Set<Position> trailHeadSummitsVisited,
-            final Counter counter)
-    {
-        if (positionWithinBounds(newY, newX, height, width))
+        private Map(final int[][] map, final int height, final int width)
         {
-            int move = Character.getNumericValue(input.get(newY).charAt(newX));
-            if (move == currentValue + 1)
+            this.map = map;
+            this.height = height;
+            this.width = width;
+        }
+
+        private int getPoint(final int y, final int x)
+        {
+            return map[y][x];
+        }
+
+        private int findDistinctTrailHeadSummits()
+        {
+            final Counter counter = new Counter();
+            for (int y = 0; y < height; y++)
             {
-                if (move == 9)
+                for (int x = 0; x < width; x++)
                 {
-                    final Position newPosition = new Position(newY, newX);
-                    if (!trailHeadSummitsVisited.contains(newPosition))
+                    if (getPoint(y, x) == 0)
                     {
-                        counter.increment();
-                        trailHeadSummitsVisited.add(newPosition);
+                        findNextPoint(y, x, 0, counter, new HashSet<>());
                     }
                 }
-                else
+            }
+            return counter.count;
+        }
+
+        private void findNextPoint(
+                final int y,
+                final int x,
+                final int value,
+                final Counter counter,
+                final Set<Position> positionsVisited)
+        {
+            move(y, x + 1, value, counter, positionsVisited);
+            move(y, x - 1, value, counter, positionsVisited);
+            move(y + 1, x, value, counter, positionsVisited);
+            move(y - 1, x, value, counter, positionsVisited);
+        }
+
+        private void move(
+                final int newY,
+                final int newX,
+                final int currentValue,
+                final Counter counter,
+                final Set<Position> positionsVisited)
+        {
+            if (positionWithinBounds(newY, newX))
+            {
+                int move = getPoint(newY, newX);
+                if (move == currentValue + 1)
                 {
-                    findDistinctTrailHeadSummits(input, newY, newX, height, width, move, trailHeadSummitsVisited, counter);
+                    if (move == 9)
+                    {
+                        final Position newPosition = new Position(newY, newX);
+                        if (!positionsVisited.contains(newPosition))
+                        {
+                            counter.increment();
+                            positionsVisited.add(newPosition);
+                        }
+                    }
+                    else
+                    {
+                        findNextPoint(newY, newX, move, counter, positionsVisited);
+                    }
                 }
             }
         }
-    }
 
-    private static boolean positionWithinBounds(final int y, final int x, final int height, final int width)
-    {
-        return y >= 0 && y < height && x >= 0 && x < width;
+        private boolean positionWithinBounds(final int y, final int x)
+        {
+            return y >= 0 && y < height && x >= 0 && x < width;
+        }
     }
 
     private static class Counter

@@ -42,7 +42,7 @@ public class Day12Part2
             }
         }
 
-        final int totalFencePrice = regions.stream().map(Region::getFencePrice).mapToInt(Integer::intValue).sum();
+        final int totalFencePrice = regions.stream().map(region -> region.getFencePrice(map)).mapToInt(Integer::intValue).sum();
 
         LOGGER.info("The total price of all fencing all regions is equal to: {}, calculated in {}ms.", totalFencePrice, System.currentTimeMillis() - start);
     }
@@ -133,9 +133,45 @@ public class Day12Part2
             this.plots.add(plot);
         }
 
-        private int getFencePrice()
+        private int getFencePrice(final Map map)
         {
-            return plots.size();
+            Plot plot = plots.getFirst();
+            boolean recordXChange = false;
+            boolean recordYChange = false;
+            int sides = 4;
+            for (int i = 1; i < plots.size(); i++)
+            {
+                final Plot nextPlot = plots.get(i);
+
+                if (nextPlot.x != plot.x)
+                {
+                    if (!recordXChange)
+                    {
+                        recordYChange = true;
+                    }
+                    else
+                    {
+                        sides += 1;
+                        recordYChange = true;
+                        recordXChange = false;
+                    }
+                }
+                else if (nextPlot.y != plot.y)
+                {
+                    if (!recordYChange)
+                    {
+                        recordXChange = true;
+                    }
+                    else
+                    {
+                        sides += 1;
+                        recordXChange = true;
+                        recordYChange = false;
+                    }
+                }
+                plot = nextPlot;
+            }
+            return plots.size() * sides;
         }
     }
 

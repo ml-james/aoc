@@ -19,65 +19,98 @@ public class Day10Part2
         final int width = input.getFirst().length();
         final int height = input.size();
 
-        final Counter counter = new Counter();
-        for (int y = 0; y < height; y++)
+        final Map map = Map.createMap(input, height, width);
+
+        LOGGER.info("The total score for all of trail heads is: {}, calculated in {}ms.", map.findDistinctHikingTrails(), System.currentTimeMillis() - start);
+    }
+
+    private static final class Map
+    {
+        private final int[][] map;
+        private final int height;
+        private final int width;
+
+        private static Map createMap(final List<String> input, final int height, final int width)
         {
-            for (int x = 0; x < width; x++)
+            final int[][] map = new int[height][width];
+            for (int y = 0; y < height; y++)
             {
-                if (Character.getNumericValue(input.get(y).charAt(x)) == 0)
+                for (int x = 0; x < width; x++)
                 {
-                    findDistinctHikingTrails(input, y, x, height, width, 0, counter);
+                    map[y][x] = Character.getNumericValue(input.get(y).charAt(x));
+                }
+            }
+            return new Map(map, height, width);
+        }
+
+        private Map(final int[][] map, final int height, final int width)
+        {
+            this.map = map;
+            this.height = height;
+            this.width = width;
+        }
+
+        private int getPoint(final int y, final int x)
+        {
+            return map[y][x];
+        }
+
+        private int findDistinctHikingTrails()
+        {
+            final Counter counter = new Counter();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (getPoint(y, x) == 0)
+                    {
+                        findNextPoint(y, x, 0, counter);
+                    }
+                }
+            }
+
+            return counter.count;
+        }
+
+        private void findNextPoint(
+                final int y,
+                final int x,
+                final int value,
+                final Counter counter)
+        {
+            move(y, x + 1, value, counter);
+            move(y, x - 1, value, counter);
+            move(y + 1, x, value, counter);
+            move(y - 1, x, value, counter);
+        }
+
+        private void move(
+                final int newY,
+                final int newX,
+                final int currentValue,
+                final Counter counter)
+        {
+            if (positionWithinBounds(newY, newX))
+            {
+                int move = getPoint(newY, newX);
+                if (move == currentValue + 1)
+                {
+                    if (move == 9)
+                    {
+                        counter.increment();
+                    }
+                    else
+                    {
+                        findNextPoint(newY, newX, move, counter);
+                    }
                 }
             }
         }
 
-        LOGGER.info("The total score for all of trail heads is: {}, calculated in {}ms.", counter.count, System.currentTimeMillis() - start);
-    }
-
-    private static void findDistinctHikingTrails(
-            final List<String> input,
-            final int y,
-            final int x,
-            final int height,
-            final int width,
-            final int currentValue,
-            final Counter counter)
-    {
-        move(input, y, x + 1, height, width, currentValue, counter);
-        move(input, y, x - 1, height, width, currentValue, counter);
-        move(input, y + 1, x, height, width, currentValue, counter);
-        move(input, y - 1, x, height, width, currentValue, counter);
-    }
-
-    private static void move(
-            final List<String> input,
-            final int newY,
-            final int newX,
-            final int height,
-            final int width,
-            final int currentValue,
-            final Counter counter)
-    {
-        if (positionWithinBounds(newY, newX, height, width))
+        private boolean positionWithinBounds(final int y, final int x)
         {
-            int move = Character.getNumericValue(input.get(newY).charAt(newX));
-            if (move == currentValue + 1)
-            {
-                if (move == 9)
-                {
-                    counter.increment();
-                }
-                else
-                {
-                    findDistinctHikingTrails(input, newY, newX, height, width, move, counter);
-                }
-            }
+            return y >= 0 && y < height && x >= 0 && x < width;
         }
-    }
-
-    private static boolean positionWithinBounds(final int y, final int x, final int height, final int width)
-    {
-        return y >= 0 && y < height && x >= 0 && x < width;
     }
 
     private static class Counter
