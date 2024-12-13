@@ -23,7 +23,7 @@ public class Day12Part1
         final int width = input.getFirst().length();
         final int height = input.size();
 
-        final Map map = Map.createMap(input, height, width);
+        final Farm farm = Farm.createFarm(input, height, width);
 
         final Set<Plot> seenPlots = new HashSet<>();
         final List<Region> regions = new ArrayList<>();
@@ -31,10 +31,10 @@ public class Day12Part1
         {
             for (int x = 0; x < width; x++)
             {
-                final Plot currentPlot = map.getPlot(y, x);
+                final Plot currentPlot = farm.getPlot(y, x);
                 if (!seenPlots.contains(currentPlot))
                 {
-                    regions.add(findRegion(currentPlot, map, seenPlots, new Region()));
+                    regions.add(findRegion(currentPlot, farm, seenPlots, new Region()));
                 }
             }
         }
@@ -44,24 +44,24 @@ public class Day12Part1
         LOGGER.info("The total price of all fencing all regions is equal to: {}, calculated in {}ms.", totalFencePrice, System.currentTimeMillis() - start);
     }
 
-    private static final class Map
+    private static final class Farm
     {
-        private final Plot[][] map;
+        private final Plot[][] farm;
         private final int height;
         private final int width;
 
-        private static Map createMap(final List<String> input, final int height, final int width)
+        private static Farm createFarm(final List<String> input, final int height, final int width)
         {
-            final Plot[][] map = new Plot[height][width];
+            final Plot[][] farm = new Plot[height][width];
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     final String plant = Character.toString(input.get(y).charAt(x));
-                    map[y][x] = new Plot(y, x, plant, calculateBoundaryForPlot(input, y, x, height, width, plant));
+                    farm[y][x] = new Plot(y, x, plant, calculateBoundaryForPlot(input, y, x, height, width, plant));
                 }
             }
-            return new Map(map, height, width);
+            return new Farm(farm, height, width);
         }
 
         private static Set<Boundary> calculateBoundaryForPlot(
@@ -84,11 +84,11 @@ public class Day12Part1
             }
             if (isPositionABoundary(input, y + 1, x, height, width, plant))
             {
-                boundarys.add(Boundary.TOP);
+                boundarys.add(Boundary.BOTTOM);
             }
             if (isPositionABoundary(input, y - 1, x, height, width, plant))
             {
-                boundarys.add(Boundary.BOTTOM);
+                boundarys.add(Boundary.TOP);
             }
 
             return boundarys;
@@ -119,16 +119,16 @@ public class Day12Part1
             return y >= 0 && y < height && x >= 0 && x < width;
         }
 
-        private Map(final Plot[][] map, final int height, final int width)
+        private Farm(final Plot[][] farm, final int height, final int width)
         {
-            this.map = map;
+            this.farm = farm;
             this.height = height;
             this.width = width;
         }
 
         private Plot getPlot(final int y, final int x)
         {
-            return map[y][x];
+            return farm[y][x];
         }
 
         private boolean isPositionWithinBounds(final int y, final int x)
@@ -139,17 +139,17 @@ public class Day12Part1
 
     private static Region findRegion(
             final Plot startingPlot,
-            final Map map,
+            final Farm farm,
             final Set<Plot> seenPlots,
             final Region region)
     {
         region.addPlot(startingPlot);
         seenPlots.add(startingPlot);
 
-        nextPlot(startingPlot.y, startingPlot.x + 1, startingPlot, map, seenPlots, region);
-        nextPlot(startingPlot.y, startingPlot.x - 1, startingPlot, map, seenPlots, region);
-        nextPlot(startingPlot.y + 1, startingPlot.x, startingPlot, map, seenPlots, region);
-        nextPlot(startingPlot.y - 1, startingPlot.x, startingPlot, map, seenPlots, region);
+        nextPlot(startingPlot.y, startingPlot.x + 1, startingPlot, farm, seenPlots, region);
+        nextPlot(startingPlot.y, startingPlot.x - 1, startingPlot, farm, seenPlots, region);
+        nextPlot(startingPlot.y + 1, startingPlot.x, startingPlot, farm, seenPlots, region);
+        nextPlot(startingPlot.y - 1, startingPlot.x, startingPlot, farm, seenPlots, region);
 
         return region;
     }
@@ -158,19 +158,19 @@ public class Day12Part1
             final int nextY,
             final int nextX,
             final Plot lastPlot,
-            final Map map,
+            final Farm farm,
             final Set<Plot> seenPlots,
             final Region region)
     {
-        if (map.isPositionWithinBounds(nextY, nextX))
+        if (farm.isPositionWithinBounds(nextY, nextX))
         {
-            final Plot nextPlant = map.getPlot(nextY, nextX);
+            final Plot nextPlant = farm.getPlot(nextY, nextX);
             if (nextPlant.plant.equals(lastPlot.plant))
             {
-                final Plot nextPlot = map.getPlot(nextY, nextX);
+                final Plot nextPlot = farm.getPlot(nextY, nextX);
                 if (!seenPlots.contains(nextPlot))
                 {
-                    findRegion(nextPlot, map, seenPlots, region);
+                    findRegion(nextPlot, farm, seenPlots, region);
                 }
             }
         }

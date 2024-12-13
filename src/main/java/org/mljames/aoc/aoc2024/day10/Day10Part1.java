@@ -22,40 +22,40 @@ public class Day10Part1
         final int width = input.getFirst().length();
         final int height = input.size();
 
-        final Map map = Map.createMap(input, height, width);
+        final TopographicMap topographicMap = TopographicMap.createMap(input, height, width);
 
-        LOGGER.info("The total score for all of trail heads is: {}, calculated in {}ms.", map.findDistinctTrailHeadSummits(), System.currentTimeMillis() - start);
+        LOGGER.info("The total score for all of trail heads is: {}, calculated in {}ms.", topographicMap.findDistinctTrailHeadSummits(), System.currentTimeMillis() - start);
     }
 
-    private static final class Map
+    private static final class TopographicMap
     {
-        private final int[][] map;
+        private final int[][] topographicMap;
         private final int height;
         private final int width;
 
-        private static Map createMap(final List<String> input, final int height, final int width)
+        private static TopographicMap createMap(final List<String> input, final int height, final int width)
         {
-            final int[][] map = new int[height][width];
+            final int[][] topographicMap = new int[height][width];
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    map[y][x] = Character.getNumericValue(input.get(y).charAt(x));
+                    topographicMap[y][x] = Character.getNumericValue(input.get(y).charAt(x));
                 }
             }
-            return new Map(map, height, width);
+            return new TopographicMap(topographicMap, height, width);
         }
 
-        private Map(final int[][] map, final int height, final int width)
+        private TopographicMap(final int[][] topographicMap, final int height, final int width)
         {
-            this.map = map;
+            this.topographicMap = topographicMap;
             this.height = height;
             this.width = width;
         }
 
         private int getPoint(final int y, final int x)
         {
-            return map[y][x];
+            return topographicMap[y][x];
         }
 
         private int findDistinctTrailHeadSummits()
