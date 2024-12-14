@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Day13Part1
+public class Day14Part1
 {
     private static final int WIDTH = 101;
     private static final int HEIGHT = 103;
     private static final int SECONDS = 100;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Day13Part1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day14Part1.class);
 
     private static final Pattern getStartingPositionX = Pattern.compile("p\\=(\\-{0,1}[0-9]{1,3}),");
     private static final Pattern getStartingPositionY = Pattern.compile("p\\=\\-{0,1}[0-9]{1,3},(\\-{0,1}[0-9]{1,3})");
