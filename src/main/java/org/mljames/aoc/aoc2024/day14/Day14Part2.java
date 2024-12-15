@@ -5,9 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Day14Part2
 {
@@ -26,7 +30,9 @@ public class Day14Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part1/puzzle_input.txt");
+        final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part2/puzzle_input.txt");
+
+        final Set<Position> christmasTreePositions = getChristmasTreePositions();
 
         final List<Robot> robots = new ArrayList<>();
         for (final String configuration : input)
@@ -37,9 +43,40 @@ public class Day14Part2
             );
         }
 
-        final int secondsToDisplayEasterEgg = 0;
+        int secondsToDisplayEasterEgg = 0;
+        while (true)
+        {
+            robots.forEach(Robot::move);
+
+            final Set<Position> currentRobotPositions = robots.stream().map(r -> r.currentPosition).collect(Collectors.toSet());
+
+            if (currentRobotPositions.containsAll(christmasTreePositions))
+            {
+                break;
+            }
+            LOGGER.info("Seconds elapsed: {}.", secondsToDisplayEasterEgg);
+            secondsToDisplayEasterEgg += 1;
+        }
 
         LOGGER.info("It takes {}s for the robots to display the Easter Egg {}, calculated in {}ms.", SECONDS, secondsToDisplayEasterEgg, System.currentTimeMillis() - start);
+    }
+
+    private static Set<Position> getChristmasTreePositions()
+    {
+        final List<String> christmasTree = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part2/christmas_tree.txt");
+
+        final Set<Position> christmasTreePositions = new HashSet<>();
+        for (int i = 0; i < christmasTree.size(); i++)
+        {
+            for (int j = 0; j < christmasTree.get(i).length(); j++)
+            {
+                if (christmasTree.get(i).charAt(j) == 'X')
+                {
+                    christmasTreePositions.add(new Position(j, i));
+                }
+            }
+        }
+        return christmasTreePositions;
     }
 
     private static int extractInt(final Matcher matcher)
@@ -80,6 +117,27 @@ public class Day14Part2
         {
             this.xPosition = xPosition;
             this.yPosition = yPosition;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass())
+            {
+                return false;
+            }
+            final Position position = (Position) o;
+            return xPosition == position.xPosition && yPosition == position.yPosition;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(xPosition, yPosition);
         }
     }
 
