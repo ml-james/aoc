@@ -32,33 +32,35 @@ public class Day14Part2
 
         final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part2/puzzle_input.txt");
 
-        final Set<Position> christmasTreePositions = getChristmasTreePositions();
+        final Set<Position> targetChristmasTreePositions = getChristmasTreePositions();
 
         final List<Robot> robots = new ArrayList<>();
-        for (final String configuration : input)
+        for (final String startingConfiguration : input)
         {
             robots.add(new Robot(
-                    new Position(extractInt(getStartingPositionX.matcher(configuration)), extractInt(getStartingPositionY.matcher(configuration))),
-                    new Velocity(extractInt(getVelocityX.matcher(configuration)), extractInt(getVelocityY.matcher(configuration))))
-            );
+                    extractInt(getStartingPositionX.matcher(startingConfiguration)),
+                    extractInt(getStartingPositionY.matcher(startingConfiguration)),
+                    extractInt(getVelocityX.matcher(startingConfiguration)),
+                    extractInt(getVelocityY.matcher(startingConfiguration))));
         }
 
-        int secondsToDisplayEasterEgg = 0;
+        int secondsToDisplayChristmasTree = 0;
         while (true)
         {
             robots.forEach(Robot::move);
 
             final Set<Position> currentRobotPositions = robots.stream().map(r -> r.currentPosition).collect(Collectors.toSet());
 
-            if (currentRobotPositions.containsAll(christmasTreePositions))
+            if (currentRobotPositions.containsAll(targetChristmasTreePositions))
             {
+                LOGGER.info("Discovered the target Christmas Tree positions after: {}.", secondsToDisplayChristmasTree);
                 break;
             }
-            LOGGER.info("Seconds elapsed: {}.", secondsToDisplayEasterEgg);
-            secondsToDisplayEasterEgg += 1;
+            secondsToDisplayChristmasTree += 1;
+            LOGGER.info("Seconds elapsed without finding the easter egg: {}.", secondsToDisplayChristmasTree);
         }
 
-        LOGGER.info("It takes {}s for the robots to display the Easter Egg {}, calculated in {}ms.", SECONDS, secondsToDisplayEasterEgg, System.currentTimeMillis() - start);
+        LOGGER.info("It takes {}s for the robots to display the easter egg {}, calculated in {}ms.", SECONDS, secondsToDisplayChristmasTree, System.currentTimeMillis() - start);
     }
 
     private static Set<Position> getChristmasTreePositions()
@@ -93,10 +95,10 @@ public class Day14Part2
         private Position currentPosition;
         private final Velocity velocity;
 
-        public Robot(final Position currentPosition, final Velocity velocity)
+        public Robot(final int xPosition, final int yPosition, final int xVelocity, final int yVelocity)
         {
-            this.currentPosition = currentPosition;
-            this.velocity = velocity;
+            this.currentPosition = new Position(xPosition, yPosition);
+            this.velocity = new Velocity(xVelocity, yVelocity);
         }
 
         private void move()

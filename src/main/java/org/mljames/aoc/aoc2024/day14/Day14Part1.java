@@ -29,12 +29,13 @@ public class Day14Part1
         final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part1/puzzle_input.txt");
 
         final List<Robot> robots = new ArrayList<>();
-        for (final String configuration : input)
+        for (final String startingConfiguration : input)
         {
             robots.add(new Robot(
-                    new Position(extractInt(getStartingPositionX.matcher(configuration)), extractInt(getStartingPositionY.matcher(configuration))),
-                    new Velocity(extractInt(getVelocityX.matcher(configuration)), extractInt(getVelocityY.matcher(configuration))))
-            );
+                    extractInt(getStartingPositionX.matcher(startingConfiguration)),
+                    extractInt(getStartingPositionY.matcher(startingConfiguration)),
+                    extractInt(getVelocityX.matcher(startingConfiguration)),
+                    extractInt(getVelocityY.matcher(startingConfiguration))));
         }
 
         for (int i = 0; i < SECONDS; i++)
@@ -66,10 +67,10 @@ public class Day14Part1
         private Position currentPosition;
         private final Velocity velocity;
 
-        public Robot(final Position currentPosition, final Velocity velocity)
+        public Robot(final int xPosition, final int yPosition, final int xVelocity, final int yVelocity)
         {
-            this.currentPosition = currentPosition;
-            this.velocity = velocity;
+            this.currentPosition = new Position(xPosition, yPosition);
+            this.velocity = new Velocity(xVelocity, yVelocity);
         }
 
         private void move()
