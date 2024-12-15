@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class Day15Part1
@@ -142,29 +143,52 @@ public class Day15Part1
             }
         }
 
-        private void moveRobotPosition(int newXPosition, int newYPosition, final Direction direction)
+        private Position nextPosition(final Position position, final Direction direction)
+        {
+            return switch (direction)
+            {
+                case UP -> new Position(position.xPosition, position.yPosition - 1);
+                case RIGHT -> new Position(position.xPosition + 1, position.yPosition);
+                case DOWN -> new Position(position.xPosition, position.yPosition + 1);
+                case LEFT -> new Position(position.xPosition - 1, position.yPosition);
+            };
+        }
+
+        private void moveRobotPosition(final int newXPosition, final int newYPosition, final Direction direction)
         {
             final Position newRobotPosition = new Position(newXPosition, newYPosition);
             if (isFree(newRobotPosition))
             {
-                units[robotPosition.yPosition][robotPosition.xPosition] = '.';
-
-                robotPosition = newRobotPosition;
-                units[robotPosition.yPosition][robotPosition.xPosition] = '@';
+                moveRobot(newRobotPosition);
             }
             else
             {
                 final Optional<Position> maybeNextFreeSpace = findNextFreeSpace(direction);
                 if (maybeNextFreeSpace.isPresent())
                 {
-                    units[robotPosition.yPosition][robotPosition.xPosition] = '.';
-
-                    robotPosition = newRobotPosition;
-                    units[robotPosition.yPosition][robotPosition.xPosition] = '@';
-
-                    units[maybeNextFreeSpace.get().yPosition][maybeNextFreeSpace.get().xPosition] = 'O';
+                    moveBoxes(direction, newRobotPosition, maybeNextFreeSpace.get());
+                    moveRobot(newRobotPosition);
                 }
             }
+        }
+
+        private void moveRobot(final Position newRobotPosition)
+        {
+            units[robotPosition.yPosition][robotPosition.xPosition] = '.';
+
+            robotPosition = newRobotPosition;
+            units[robotPosition.yPosition][robotPosition.xPosition] = '@';
+        }
+
+        private void moveBoxes(final Direction direction, final Position newRobotPosition, final Position nextFreeSpace)
+        {
+            Position currentPosition = newRobotPosition;
+            do
+            {
+                currentPosition = nextPosition(currentPosition, direction);
+                units[currentPosition.yPosition][currentPosition.xPosition] = 'O';
+            }
+            while (!currentPosition.equals(nextFreeSpace));
         }
 
         private Warehouse(final char[][] units, final Position robotPosition, final int height, final int width)
@@ -201,6 +225,27 @@ public class Day15Part1
         {
             this.xPosition = xPosition;
             this.yPosition = yPosition;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass())
+            {
+                return false;
+            }
+            final Position position = (Position) o;
+            return xPosition == position.xPosition && yPosition == position.yPosition;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(xPosition, yPosition);
         }
     }
 
