@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Day15Part1
 {
@@ -74,8 +73,8 @@ public class Day15Part1
             final Position newRobotPosition = new Position(newXPosition, newYPosition);
             if (!isWall(newRobotPosition))
             {
-                final List<Position> boxes = findConnectedBoxes(direction);
-                if (connectedBoxesMoveable(boxes, direction))
+                final List<Position> boxes = findBoxNeighbours(direction);
+                if (boxNeighboursMoveable(boxes, direction))
                 {
                     moveBoxes(direction, boxes);
                     moveRobot(newRobotPosition);
@@ -83,7 +82,7 @@ public class Day15Part1
             }
         }
 
-        private List<Position> findConnectedBoxes(final Direction direction)
+        private List<Position> findBoxNeighbours(final Direction direction)
         {
             Position position = nextPosition(robotPosition, direction);
             final List<Position> boxes = new ArrayList<>();
@@ -118,7 +117,7 @@ public class Day15Part1
             };
         }
 
-        private boolean connectedBoxesMoveable(final List<Position> positions, final Direction direction)
+        private boolean boxNeighboursMoveable(final List<Position> positions, final Direction direction)
         {
             for (final Position position : positions)
             {
