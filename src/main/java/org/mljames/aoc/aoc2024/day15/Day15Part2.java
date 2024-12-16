@@ -4,6 +4,7 @@ import org.mljames.aoc.PuzzleInputReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,6 @@ public class Day15Part2
         }
 
         LOGGER.info("After the robot has finished moving the sum of all the boxes GPS coordinates is: {}, calculated in {}ms.", warehouse.getGpsCoordinateSum(), System.currentTimeMillis() - start);
-
     }
 
 
@@ -78,75 +78,40 @@ public class Day15Part2
             return new Warehouse(units, robotStartingPosition, inputHeight * 2, inputWidth * 2);
         }
 
-        private boolean isWall(final Position position)
+        private Warehouse(final char[][] units, final Position robotPosition, final int height, final int width)
         {
-            return units[position.yPosition][position.xPosition] == '#';
+            this.units = units;
+            this.robotPosition = robotPosition;
+            this.height = height;
+            this.width = width;
         }
 
-        private boolean isFree(final Position position)
+        private void move(final int newXPosition, final int newYPosition, final Direction direction)
         {
-            return units[position.yPosition][position.xPosition] == '.';
-        }
-
-        private Optional<Position> findNextFreeSpace(final Direction direction)
-        {
-            switch (direction)
+            final Position newRobotPosition = new Position(newXPosition, newYPosition);
+            if (!isWall(newRobotPosition))
             {
-                case UP ->
+                final List<Position> boxes = findConnectedBoxes(direction);
+                if (connectedBoxesMoveable(boxes, direction))
                 {
-                    Position position = new Position(robotPosition.xPosition, robotPosition.yPosition - 1);
-                    while (!isWall(position))
-                    {
-                        if (isFree(position))
-                        {
-                            return Optional.of(position);
-                        }
-                        position = new Position(position.xPosition, position.yPosition - 1);
-                    }
-                    return Optional.empty();
+                    moveBoxes(direction, boxes);
+                    moveRobot(newRobotPosition);
                 }
-                case RIGHT ->
-                {
-                    Position position = new Position(robotPosition.xPosition + 1, robotPosition.yPosition);
-                    while (!isWall(position))
-                    {
-                        if (isFree(position))
-                        {
-                            return Optional.of(position);
-                        }
-                        position = new Position(position.xPosition + 1, position.yPosition);
-                    }
-                    return Optional.empty();
-                }
-                case DOWN ->
-                {
-                    Position position = new Position(robotPosition.xPosition, robotPosition.yPosition + 1);
-                    while (!isWall(position))
-                    {
-                        if (isFree(position))
-                        {
-                            return Optional.of(position);
-                        }
-                        position = new Position(position.xPosition, position.yPosition + 1);
-                    }
-                    return Optional.empty();
-                }
-                case LEFT ->
-                {
-                    Position position = new Position(robotPosition.xPosition - 1, robotPosition.yPosition);
-                    while (!isWall(position))
-                    {
-                        if (isFree(position))
-                        {
-                            return Optional.of(position);
-                        }
-                        position = new Position(position.xPosition - 1, position.yPosition);
-                    }
-                    return Optional.empty();
-                }
-                default -> throw new RuntimeException("Unexpected direction!!");
             }
         }
+
+        private List<Position> findConnectedBoxes(final Direction direction)
+        {
+            Position position = nextPosition(robotPosition, direction);
+            final List<Position> boxes = new ArrayList<>();
+            while (isBox(position))
+            {
+                boxes.add(position);
+                position = nextPosition(position, direction);
+            }
+            return boxes;
+        }
+
 
         private void move(final Direction direction)
         {
@@ -170,22 +135,16 @@ public class Day15Part2
             };
         }
 
-        private void move(final int newXPosition, final int newYPosition, final Direction direction)
+        private boolean connectedBoxesMoveable(final List<Position> positions, final Direction direction)
         {
-            final Position newRobotPosition = new Position(newXPosition, newYPosition);
-            if (isFree(newRobotPosition))
+            for (final Position position : positions)
             {
-                moveRobot(newRobotPosition);
-            }
-            else
-            {
-                final Optional<Position> maybeNextFreeSpace = findNextFreeSpace(direction);
-                if (maybeNextFreeSpace.isPresent())
+                if (isWall(nextPosition(position, direction)))
                 {
-                    moveBoxes(direction, newRobotPosition, maybeNextFreeSpace.get());
-                    moveRobot(newRobotPosition);
+                    return false;
                 }
             }
+            return true;
         }
 
         private void moveRobot(final Position newRobotPosition)
@@ -196,23 +155,23 @@ public class Day15Part2
             units[robotPosition.yPosition][robotPosition.xPosition] = '@';
         }
 
-        private void moveBoxes(final Direction direction, final Position newRobotPosition, final Position nextFreeSpace)
+        private void moveBoxes(final Direction direction, final List<Position> boxes)
         {
-            Position currentPosition = newRobotPosition;
-            do
+            for (final Position position : boxes)
             {
-                currentPosition = nextPosition(currentPosition, direction);
-                units[currentPosition.yPosition][currentPosition.xPosition] = 'O';
+                final Position newPosition = nextPosition(position, direction);
+                units[newPosition.yPosition][newPosition.xPosition] = 'O';
             }
-            while (!currentPosition.equals(nextFreeSpace));
         }
 
-        private Warehouse(final char[][] units, final Position robotPosition, final int height, final int width)
+        private boolean isWall(final Position position)
         {
-            this.units = units;
-            this.robotPosition = robotPosition;
-            this.height = height;
-            this.width = width;
+            return units[position.yPosition][position.xPosition] == '#';
+        }
+
+        private boolean isBox(final Position position)
+        {
+            return units[position.yPosition][position.xPosition] == 'O';
         }
 
         private long getGpsCoordinateSum()
