@@ -49,9 +49,12 @@ public class Day16Part1
         {
             Position start = null;
             final char[][] maze = new char[height][width];
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (input.get(y).charAt(x) == 'S') {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (input.get(y).charAt(x) == 'S')
+                    {
                         start = new Position(x, y);
                     }
                     maze[y][x] = input.get(y).charAt(x);
@@ -72,17 +75,17 @@ public class Day16Part1
             {
                 final Route current = queue.poll();
 
+                if (isEnd(current.currentPosition))
+                {
+                    return current;
+                }
+
                 final Vector vector = new Vector(current.currentPosition, current.currentDirection);
                 if (visited.contains(vector))
                 {
                     continue;
                 }
                 visited.add(vector);
-
-                if (isEnd(current.currentPosition))
-                {
-                    return current;
-                }
 
                 exploreMove(queue, vectorScores, current, MovementType.FORWARD);
                 exploreMove(queue, vectorScores, current, MovementType.TURN_CLOCKWISE);
@@ -125,11 +128,13 @@ public class Day16Part1
             }
         }
 
-        private boolean isEnd(final Position position) {
+        private boolean isEnd(final Position position)
+        {
             return maze[position.y][position.x] == 'E';
         }
 
-        private boolean isFree(final Position position) {
+        private boolean isFree(final Position position)
+        {
             return maze[position.y][position.x] == '.';
         }
     }
@@ -141,7 +146,8 @@ public class Day16Part1
         private Position currentPosition;
         private Direction currentDirection;
 
-        public Route(final int score, final Position position, final Direction direction) {
+        public Route(final int score, final Position position, final Direction direction)
+        {
             this.score = score;
             this.currentPosition = position;
             this.currentDirection = direction;
@@ -203,6 +209,40 @@ public class Day16Part1
         }
     }
 
+    private static final class Vector
+    {
+
+        private final Position position;
+        private final Direction direction;
+
+        private Vector(final Position position, final Direction direction)
+        {
+            this.position = position;
+            this.direction = direction;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass())
+            {
+                return false;
+            }
+            final Vector vector = (Vector) o;
+            return Objects.equals(position, vector.position) && direction == vector.direction;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(position, direction);
+        }
+    }
+
     private static final class Position
     {
         final int x, y;
@@ -243,40 +283,6 @@ public class Day16Part1
         public int hashCode()
         {
             return Objects.hash(x, y);
-        }
-    }
-
-    private static final class Vector
-    {
-
-        private final Position position;
-        private final Direction direction;
-
-        private Vector(final Position position, final Direction direction)
-        {
-            this.position = position;
-            this.direction = direction;
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass())
-            {
-                return false;
-            }
-            final Vector vector = (Vector) o;
-            return Objects.equals(position, vector.position) && direction == vector.direction;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(position, direction);
         }
     }
 }
