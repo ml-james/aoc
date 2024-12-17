@@ -10,9 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class Day16Part1
 {
@@ -29,10 +28,7 @@ public class Day16Part1
 
         final ReindeerMaze maze = ReindeerMaze.create(input, height, width);
 
-        final Route cheapestRoute = maze.findCheapestRoute(
-                new HashSet<>(),
-                new Route(0, maze.startingPosition, maze.startingDirection),
-                new HashMap<>()).orElseThrow();
+        final Route cheapestRoute = maze.findCheapestRoute();
 
         LOGGER.info("The lowest score a reindeer could get traversing the maze is: {}, calculated in {}ms.", cheapestRoute.score, System.currentTimeMillis() - start);
     }
@@ -53,12 +49,9 @@ public class Day16Part1
         {
             Position start = null;
             final char[][] maze = new char[height][width];
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    if (input.get(y).charAt(x) == 'S')
-                    {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (input.get(y).charAt(x) == 'S') {
                         start = new Position(x, y);
                     }
                     maze[y][x] = input.get(y).charAt(x);
@@ -67,153 +60,96 @@ public class Day16Part1
             return new ReindeerMaze(maze, start);
         }
 
-        private Optional<Route> findCheapestRoute(
-                final Set<Position> visitedPositions,
-                final Route route,
-                final Map<Vector, Integer> vectorScores)
+        private Route findCheapestRoute()
         {
-            final Optional<Route> routeCandidate1 = moveForward(new HashSet<>(visitedPositions), new Route(route), vectorScores);
-            final Optional<Route> routeCandidate2 = turnClockwiseAndMoveForward(new HashSet<>(visitedPositions), new Route(route), vectorScores);
-            final Optional<Route> routeCandidate3 = turnAntiClockwiseAndMoveForward(new HashSet<>(visitedPositions), new Route(route), vectorScores);
+            final PriorityQueue<Route> queue = new PriorityQueue<>(Comparator.comparingInt(r -> r.score));
+            final Map<Vector, Integer> vectorScores = new HashMap<>();
+            final Set<Vector> visited = new HashSet<>();
 
-            return Stream.of(routeCandidate1, routeCandidate2, routeCandidate3)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .sorted(Comparator.comparing((Route r) -> r.score))
-                    .filter(r -> isEnd(r.currentPosition))
-                    .findFirst();
+            queue.add(new Route(0, startingPosition, startingDirection));
+
+            while (!queue.isEmpty())
+            {
+                final Route current = queue.poll();
+
+                final Vector vector = new Vector(current.currentPosition, current.currentDirection);
+                if (visited.contains(vector))
+                {
+                    continue;
+                }
+                visited.add(vector);
+
+                if (isEnd(current.currentPosition))
+                {
+                    return current;
+                }
+
+                exploreMove(queue, vectorScores, current, MovementType.FORWARD);
+                exploreMove(queue, vectorScores, current, MovementType.TURN_CLOCKWISE);
+                exploreMove(queue, vectorScores, current, MovementType.TURN_ANTI_CLOCKWISE);
+            }
+
+            throw new RuntimeException("No valid route found!");
         }
 
-        private Optional<Route> moveForward(
-                final Set<Position> visitedPositions,
-                final Route route,
-                final Map<Vector, Integer> vectorScores)
+        private void exploreMove(
+                final PriorityQueue<Route> queue,
+                final Map<Vector, Integer> vectorScores,
+                final Route current,
+                final MovementType movementType)
         {
-            final Position currentPosition = route.move();
-            if (isEnd(currentPosition))
+            final Route nextRoute = current.copy();
+
+            switch (movementType)
             {
-                return Optional.of(route);
+                case FORWARD -> nextRoute.moveForward();
+                case TURN_CLOCKWISE ->
+                {
+                    nextRoute.turnClockwise();
+                    nextRoute.moveForward();
+                }
+                case TURN_ANTI_CLOCKWISE ->
+                {
+                    nextRoute.turnAntiClockwise();
+                    nextRoute.moveForward();
+                }
             }
-            if (!visitedPositions.contains(currentPosition) && isFree(route.currentPosition))
+
+            final Vector nextVector = new Vector(nextRoute.currentPosition, nextRoute.currentDirection);
+
+            if (isFree(nextRoute.currentPosition) || isEnd(nextRoute.currentPosition)
+                    && nextRoute.score < vectorScores.getOrDefault(nextVector, Integer.MAX_VALUE))
             {
-                visitedPositions.add(currentPosition);
-                if (vectorScores.containsKey(new Vector(currentPosition, route.currentDirection)))
-                {
-                    if (route.score > vectorScores.get(new Vector(currentPosition, route.currentDirection)))
-                    {
-                        return Optional.empty();
-                    }
-                    else
-                    {
-                        vectorScores.put(new Vector(currentPosition, route.currentDirection), route.score);
-                    }
-                }
-                else
-                {
-                    vectorScores.put(new Vector(currentPosition, route.currentDirection), route.score);
-                }
-                return findCheapestRoute(visitedPositions, route, vectorScores);
+                vectorScores.put(nextVector, nextRoute.score);
+                queue.add(nextRoute);
             }
-            return Optional.empty();
         }
 
-        private Optional<Route> turnClockwiseAndMoveForward(
-                final Set<Position> visitedPositions,
-                final Route route,
-                final Map<Vector, Integer> vectorScores)
-        {
-            route.turnClockwise();
-            final Position currentPosition = route.move();
-            if (isEnd(currentPosition))
-            {
-                return Optional.of(route);
-            }
-            if (!visitedPositions.contains(currentPosition) && isFree(route.currentPosition))
-            {
-                visitedPositions.add(currentPosition);
-                if (vectorScores.containsKey(new Vector(currentPosition, route.currentDirection)))
-                {
-                    if (route.score > vectorScores.get(new Vector(currentPosition, route.currentDirection)))
-                    {
-                        return Optional.empty();
-                    }
-                    else
-                    {
-                        vectorScores.put(new Vector(currentPosition, route.currentDirection), route.score);
-                    }
-                }
-                else
-                {
-                    vectorScores.put(new Vector(currentPosition, route.currentDirection), route.score);
-                }
-                return findCheapestRoute(visitedPositions, route, vectorScores);
-            }
-            return Optional.empty();
-        }
-
-        private Optional<Route> turnAntiClockwiseAndMoveForward(
-                final Set<Position> visitedPositions,
-                final Route route,
-                final Map<Vector, Integer> vectorScores)
-        {
-            route.turnAntiClockwise();
-            final Position currentPosition = route.move();
-            if (isEnd(currentPosition))
-            {
-                return Optional.of(route);
-            }
-            if (!visitedPositions.contains(currentPosition) && isFree(route.currentPosition))
-            {
-                visitedPositions.add(currentPosition);
-                if (vectorScores.containsKey(new Vector(currentPosition, route.currentDirection)))
-                {
-                    if (route.score > vectorScores.get(new Vector(currentPosition, route.currentDirection)))
-                    {
-                        return Optional.empty();
-                    }
-                    else
-                    {
-                        vectorScores.put(new Vector(currentPosition, route.currentDirection), route.score);
-                    }
-                }
-                else
-                {
-                    vectorScores.put(new Vector(currentPosition, route.currentDirection), route.score);
-                }
-                return findCheapestRoute(visitedPositions, route, vectorScores);
-            }
-            return Optional.empty();
-        }
-
-        private boolean isEnd(final Position position)
-        {
+        private boolean isEnd(final Position position) {
             return maze[position.y][position.x] == 'E';
         }
 
-        private boolean isFree(final Position position)
-        {
+        private boolean isFree(final Position position) {
             return maze[position.y][position.x] == '.';
         }
     }
 
-    private final static class Route
+    private static final class Route
     {
+
         private int score;
         private Position currentPosition;
         private Direction currentDirection;
 
-        public Route(final int score, final Position position, final Direction direction)
-        {
+        public Route(final int score, final Position position, final Direction direction) {
             this.score = score;
             this.currentPosition = position;
             this.currentDirection = direction;
         }
 
-        public Route(final Route route)
+        public Route copy()
         {
-            this.score = route.score;
-            this.currentPosition = route.currentPosition;
-            this.currentDirection = route.currentDirection;
+            return new Route(this.score, this.currentPosition, this.currentDirection);
         }
 
         void turnClockwise()
@@ -228,32 +164,21 @@ public class Day16Part1
             currentDirection = currentDirection.turnAntiClockwise();
         }
 
-        private Position move()
+        void moveForward()
         {
             score += 1;
-            currentPosition = move(currentPosition, currentDirection);
-            
-            return currentPosition;
+            currentPosition = currentPosition.move(currentDirection);
         }
+    }
 
-        private Position move(final Position position, final Direction direction)
-        {
-            return switch (direction)
-            {
-                case NORTH -> new Position(position.x, position.y - 1);
-                case EAST -> new Position(position.x + 1, position.y);
-                case SOUTH -> new Position(position.x, position.y + 1);
-                case WEST -> new Position(position.x - 1, position.y);
-            };
-        }
+    private enum MovementType
+    {
+        FORWARD, TURN_CLOCKWISE, TURN_ANTI_CLOCKWISE
     }
 
     private enum Direction
     {
-        WEST,
-        SOUTH,
-        EAST,
-        NORTH;
+        WEST, SOUTH, EAST, NORTH;
 
         private Direction turnClockwise()
         {
@@ -278,11 +203,54 @@ public class Day16Part1
         }
     }
 
+    private static final class Position
+    {
+        final int x, y;
+
+        private Position(final int x, final int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        Position move(final Direction direction)
+        {
+            return switch (direction)
+            {
+                case NORTH -> new Position(x, y - 1);
+                case EAST -> new Position(x + 1, y);
+                case SOUTH -> new Position(x, y + 1);
+                case WEST -> new Position(x - 1, y);
+            };
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass())
+            {
+                return false;
+            }
+            final Position position = (Position) o;
+            return x == position.x && y == position.y;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(x, y);
+        }
+    }
+
     private static final class Vector
     {
+
         private final Position position;
         private final Direction direction;
-
 
         private Vector(final Position position, final Direction direction)
         {
@@ -309,48 +277,6 @@ public class Day16Part1
         public int hashCode()
         {
             return Objects.hash(position, direction);
-        }
-    }
-
-    private static final class Position
-    {
-        private final int x;
-        private final int y;
-
-        private Position(final int x, final int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass())
-            {
-                return false;
-            }
-            final Position position = (Position) o;
-            return x == position.x && y == position.y;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Position{" +
-                    "x=" + x +
-                    ", y=" + y +
-                    '}';
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(x, y);
         }
     }
 }
