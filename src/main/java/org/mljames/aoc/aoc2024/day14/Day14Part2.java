@@ -54,8 +54,8 @@ public class Day14Part2
 
             final Set<Position> currentRobotPositions = robots.stream().map(r -> r.currentPosition).collect(Collectors.toSet());
 
-            final Map<Integer, List<Position>> robotsByX = currentRobotPositions.stream().collect(Collectors.groupingBy(position -> position.xPosition));
-            final Map<Integer, List<Position>> robotsByY = currentRobotPositions.stream().collect(Collectors.groupingBy(position -> position.yPosition));
+            final Map<Integer, List<Position>> robotsByX = currentRobotPositions.stream().collect(Collectors.groupingBy(position -> position.x));
+            final Map<Integer, List<Position>> robotsByY = currentRobotPositions.stream().collect(Collectors.groupingBy(position -> position.y));
 
             int maxColumnStreakOfRobots = robotsByX.values().stream().map(Day14Part2::findMaxColumnStreakOfRobots).mapToInt(Integer::intValue).max().orElseThrow();
             int maxRowStreakOfRobots = robotsByY.values().stream().map(Day14Part2::findMaxRowStreakOfRobots).mapToInt(Integer::intValue).max().orElseThrow();
@@ -83,14 +83,14 @@ public class Day14Part2
     private static int findMaxRowStreakOfRobots(final List<Position> yConstantPositions)
     {
         final List<Position> sortedPositionsByX = new ArrayList<>(yConstantPositions);
-        sortedPositionsByX.sort(Comparator.comparingInt((Position p) -> p.xPosition));
+        sortedPositionsByX.sort(Comparator.comparingInt((Position p) -> p.x));
 
         int maxStreak = 0;
-        int currentXValue = sortedPositionsByX.getFirst().xPosition;
+        int currentXValue = sortedPositionsByX.getFirst().x;
         int currentStreak = 0;
         for (int i = 1; i < sortedPositionsByX.size(); i++)
         {
-            if (sortedPositionsByX.get(i).xPosition == currentXValue + 1)
+            if (sortedPositionsByX.get(i).x == currentXValue + 1)
             {
                 currentStreak += 1;
             }
@@ -102,7 +102,7 @@ public class Day14Part2
                     currentStreak = 0;
                 }
             }
-            currentXValue = sortedPositionsByX.get(i).xPosition;
+            currentXValue = sortedPositionsByX.get(i).x;
         }
         return maxStreak;
     }
@@ -110,14 +110,14 @@ public class Day14Part2
     private static int findMaxColumnStreakOfRobots(final List<Position> xConstantPositions)
     {
         final List<Position> sortedPlotsByY = new ArrayList<>(xConstantPositions);
-        sortedPlotsByY.sort(Comparator.comparingInt((Position p) -> p.yPosition));
+        sortedPlotsByY.sort(Comparator.comparingInt((Position p) -> p.y));
 
         int maxStreak = 0;
-        int currentYValue = xConstantPositions.getFirst().yPosition;
+        int currentYValue = xConstantPositions.getFirst().y;
         int currentStreak = 0;
         for (int i = 1; i < xConstantPositions.size(); i++)
         {
-            if (xConstantPositions.get(i).yPosition == currentYValue + 1)
+            if (xConstantPositions.get(i).y == currentYValue + 1)
             {
                 currentStreak += 1;
             }
@@ -129,7 +129,7 @@ public class Day14Part2
                     currentStreak = 0;
                 }
             }
-            currentYValue = xConstantPositions.get(i).yPosition;
+            currentYValue = xConstantPositions.get(i).y;
         }
         return maxStreak;
     }
@@ -175,8 +175,8 @@ public class Day14Part2
 
         private void move()
         {
-            int newYPosition = (currentPosition.yPosition + velocity.yVelocity + HEIGHT) % HEIGHT;
-            int newXPosition = (currentPosition.xPosition + velocity.xVelocity + WIDTH) % WIDTH;
+            int newYPosition = (currentPosition.y + velocity.yVelocity + HEIGHT) % HEIGHT;
+            int newXPosition = (currentPosition.x + velocity.xVelocity + WIDTH) % WIDTH;
 
             currentPosition = new Position(newXPosition, newYPosition);
         }
@@ -184,13 +184,13 @@ public class Day14Part2
 
     private static final class Position
     {
-        private final int xPosition;
-        private final int yPosition;
+        private final int x;
+        private final int y;
 
-        private Position(final int xPosition, final int yPosition)
+        private Position(final int x, final int y)
         {
-            this.xPosition = xPosition;
-            this.yPosition = yPosition;
+            this.x = x;
+            this.y = y;
         }
 
         @Override
@@ -205,13 +205,13 @@ public class Day14Part2
                 return false;
             }
             final Position position = (Position) o;
-            return xPosition == position.xPosition && yPosition == position.yPosition;
+            return x == position.x && y == position.y;
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(xPosition, yPosition);
+            return Objects.hash(x, y);
         }
     }
 

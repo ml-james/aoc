@@ -85,7 +85,7 @@ public class Day15Part1
                 postMoveRegion.add(moveRobot(newRobotPosition));
 
                 moveRegionCandidate.removeAll(postMoveRegion);
-                moveRegionCandidate.forEach(p -> units[p.yPosition][p.xPosition] = '.');
+                moveRegionCandidate.forEach(p -> units[p.y][p.x] = '.');
             }
         }
 
@@ -115,10 +115,10 @@ public class Day15Part1
         {
             switch (direction)
             {
-                case UP -> move(robotPosition.xPosition, robotPosition.yPosition - 1, Direction.UP);
-                case RIGHT -> move(robotPosition.xPosition + 1, robotPosition.yPosition, Direction.RIGHT);
-                case DOWN -> move(robotPosition.xPosition, robotPosition.yPosition + 1, Direction.DOWN);
-                case LEFT -> move(robotPosition.xPosition - 1, robotPosition.yPosition, Direction.LEFT);
+                case UP -> move(robotPosition.x, robotPosition.y - 1, Direction.UP);
+                case RIGHT -> move(robotPosition.x + 1, robotPosition.y, Direction.RIGHT);
+                case DOWN -> move(robotPosition.x, robotPosition.y + 1, Direction.DOWN);
+                case LEFT -> move(robotPosition.x - 1, robotPosition.y, Direction.LEFT);
             }
         }
 
@@ -126,10 +126,10 @@ public class Day15Part1
         {
             return switch (direction)
             {
-                case UP -> new Position(position.xPosition, position.yPosition - 1);
-                case RIGHT -> new Position(position.xPosition + 1, position.yPosition);
-                case DOWN -> new Position(position.xPosition, position.yPosition + 1);
-                case LEFT -> new Position(position.xPosition - 1, position.yPosition);
+                case UP -> new Position(position.x, position.y - 1);
+                case RIGHT -> new Position(position.x + 1, position.y);
+                case DOWN -> new Position(position.x, position.y + 1);
+                case LEFT -> new Position(position.x - 1, position.y);
             };
         }
 
@@ -148,7 +148,7 @@ public class Day15Part1
         private Position moveRobot(final Position newRobotPosition)
         {
             robotPosition = newRobotPosition;
-            units[robotPosition.yPosition][robotPosition.xPosition] = '@';
+            units[robotPosition.y][robotPosition.x] = '@';
 
             return newRobotPosition;
         }
@@ -159,7 +159,7 @@ public class Day15Part1
             for (final Position position : boxes)
             {
                 final Position newPosition = nextPosition(position, direction);
-                units[newPosition.yPosition][newPosition.xPosition] = 'O';
+                units[newPosition.y][newPosition.x] = 'O';
                 newPositions.add(newPosition);
             }
             return newPositions;
@@ -167,12 +167,12 @@ public class Day15Part1
 
         private boolean isWall(final Position position)
         {
-            return units[position.yPosition][position.xPosition] == '#';
+            return units[position.y][position.x] == '#';
         }
 
         private boolean isBox(final Position position)
         {
-            return units[position.yPosition][position.xPosition] == 'O';
+            return units[position.y][position.x] == 'O';
         }
 
         private long getGpsCoordinateSum()
@@ -194,13 +194,13 @@ public class Day15Part1
 
     private static final class Position
     {
-        private final int xPosition;
-        private final int yPosition;
+        private final int x;
+        private final int y;
 
-        private Position(final int xPosition, final int yPosition)
+        private Position(final int x, final int y)
         {
-            this.xPosition = xPosition;
-            this.yPosition = yPosition;
+            this.x = x;
+            this.y = y;
         }
 
         @Override
@@ -215,13 +215,13 @@ public class Day15Part1
                 return false;
             }
             final Position position = (Position) o;
-            return xPosition == position.xPosition && yPosition == position.yPosition;
+            return x == position.x && y == position.y;
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(xPosition, yPosition);
+            return Objects.hash(x, y);
         }
     }
 

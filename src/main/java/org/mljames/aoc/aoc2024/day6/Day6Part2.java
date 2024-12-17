@@ -109,19 +109,19 @@ public class Day6Part2
                 {
                     if (row.charAt(x) == '^')
                     {
-                        startingVector = new Vector(y, x, Direction.UP);
+                        startingVector = new Vector(x, y, Direction.UP);
                     }
                     if (row.charAt(x) == '>')
                     {
-                        startingVector = new Vector(y, x, Direction.RIGHT);
+                        startingVector = new Vector(x, y, Direction.RIGHT);
                     }
                     if (row.charAt(x) == '<')
                     {
-                        startingVector = new Vector(y, x, Direction.LEFT);
+                        startingVector = new Vector(x, y, Direction.LEFT);
                     }
                     if (row.charAt(x) == 'v')
                     {
-                        startingVector = new Vector(y, x, Direction.DOWN);
+                        startingVector = new Vector(x, y, Direction.DOWN);
                     }
                     grid[y][x] = row.charAt(x);
                 }
@@ -214,7 +214,7 @@ public class Day6Part2
                     throw new RuntimeException("Unrecognized direction!!");
             }
 
-            currentVector = new Vector(y, x, direction);
+            currentVector = new Vector(x, y, direction);
 
             return Optional.of(currentVector);
         }
@@ -254,9 +254,9 @@ public class Day6Part2
         private final Position position;
         private final Direction direction;
 
-        private Vector(final int y, final int x, final Direction direction)
+        private Vector(final int x, final int y, final Direction direction)
         {
-            this.position = new Position(y, x);
+            this.position = new Position(x, y);
             this.direction = direction;
         }
 
@@ -292,15 +292,15 @@ public class Day6Part2
         }
     }
 
-    private final static class Position
+    private static final class Position
     {
-        private final int y;
         private final int x;
+        private final int y;
 
-        private Position(final int y, final int x)
+        private Position(final int x, final int y)
         {
-            this.y = y;
             this.x = x;
+            this.y = y;
         }
 
         @Override

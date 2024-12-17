@@ -210,7 +210,7 @@ public class Day6Part1
 
         private Vector(final int y, final int x, final Direction direction)
         {
-            this.position = new Position(y, x);
+            this.position = new Position(x, y);
             this.direction = direction;
         }
 
@@ -245,15 +245,15 @@ public class Day6Part1
             return Objects.hash(position, direction);
         }
 
-        private final static class Position
+        private static final class Position
         {
-            private final int y;
             private final int x;
+            private final int y;
 
-            private Position(final int y, final int x)
+            private Position(final int x, final int y)
             {
-                this.y = y;
                 this.x = x;
+                this.y = y;
             }
 
             @Override

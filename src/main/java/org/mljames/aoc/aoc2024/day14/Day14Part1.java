@@ -75,27 +75,27 @@ public class Day14Part1
 
         private void move()
         {
-            int newYPosition = (currentPosition.yPosition + velocity.yVelocity + HEIGHT) % HEIGHT;
-            int newXPosition = (currentPosition.xPosition + velocity.xVelocity + WIDTH) % WIDTH;
+            int newYPosition = (currentPosition.y + velocity.yVelocity + HEIGHT) % HEIGHT;
+            int newXPosition = (currentPosition.x + velocity.xVelocity + WIDTH) % WIDTH;
 
             currentPosition = new Position(newXPosition, newYPosition);
         }
 
         public Quadrant getQuadrant()
         {
-            if (currentPosition.xPosition < ((WIDTH - 1) / 2) && currentPosition.yPosition < ((HEIGHT - 1) / 2))
+            if (currentPosition.x < ((WIDTH - 1) / 2) && currentPosition.y < ((HEIGHT - 1) / 2))
             {
                 return Quadrant.TOP_LEFT;
             }
-            if (currentPosition.xPosition > ((WIDTH - 1) / 2) && currentPosition.yPosition < ((HEIGHT - 1) / 2))
+            if (currentPosition.x > ((WIDTH - 1) / 2) && currentPosition.y < ((HEIGHT - 1) / 2))
             {
                 return Quadrant.TOP_RIGHT;
             }
-            if (currentPosition.xPosition < ((WIDTH - 1) / 2) && currentPosition.yPosition > ((HEIGHT - 1) / 2))
+            if (currentPosition.x < ((WIDTH - 1) / 2) && currentPosition.y > ((HEIGHT - 1) / 2))
             {
                 return Quadrant.BOTTOM_LEFT;
             }
-            if (currentPosition.xPosition > ((WIDTH - 1) / 2) && currentPosition.yPosition > ((HEIGHT - 1) / 2))
+            if (currentPosition.x > ((WIDTH - 1) / 2) && currentPosition.y > ((HEIGHT - 1) / 2))
             {
                 return Quadrant.BOTTOM_RIGHT;
             }
@@ -105,13 +105,13 @@ public class Day14Part1
 
     private static final class Position
     {
-        private final int xPosition;
-        private final int yPosition;
+        private final int x;
+        private final int y;
 
-        private Position(final int xPosition, final int yPosition)
+        private Position(final int x, final int y)
         {
-            this.xPosition = xPosition;
-            this.yPosition = yPosition;
+            this.x = x;
+            this.y = y;
         }
     }
 

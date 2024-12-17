@@ -101,7 +101,7 @@ public class Day10Part1
                 {
                     if (move == 9)
                     {
-                        final Position newPosition = new Position(newY, newX);
+                        final Position newPosition = new Position(newX, newY);
                         if (!positionsVisited.contains(newPosition))
                         {
                             counter.increment();
@@ -134,13 +134,13 @@ public class Day10Part1
 
     private static final class Position
     {
-        private final int y;
         private final int x;
+        private final int y;
 
-        private Position(final int y, final int x)
+        private Position(final int x, final int y)
         {
-            this.y = y;
             this.x = x;
+            this.y = y;
         }
 
         @Override

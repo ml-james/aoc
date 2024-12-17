@@ -33,7 +33,7 @@ public class Day8Part1
                 if (!type.equals(EMPTY_SPACE))
                 {
                     gridsByAntennaType.computeIfAbsent(type, val -> new Grid(height, width));
-                    gridsByAntennaType.get(type).addAntenna(new Position(y, x));
+                    gridsByAntennaType.get(type).addAntenna(new Position(x, y));
                 }
             }
         }
@@ -76,13 +76,13 @@ public class Day8Part1
 
             final List<Position> antinodes = new ArrayList<>();
 
-            final Position candidateAntinode1 = new Position(antenna.y + yDifference, antenna.x + xDifference);
+            final Position candidateAntinode1 = new Position(antenna.x + xDifference, antenna.y + yDifference);
             if (positionWithinBounds(candidateAntinode1))
             {
                 antinodes.add(candidateAntinode1);
             }
 
-            final Position candidateAntinode2 = new Position(newAntenna.y - yDifference, newAntenna.x - xDifference);
+            final Position candidateAntinode2 = new Position(newAntenna.x - xDifference, newAntenna.y - yDifference);
             if (positionWithinBounds(candidateAntinode2))
             {
                 antinodes.add(candidateAntinode2);
@@ -99,13 +99,13 @@ public class Day8Part1
 
     private static final class Position
     {
-        private final int y;
         private final int x;
+        private final int y;
 
-        private Position(final int y, final int x)
+        private Position(final int x, final int y)
         {
-            this.y = y;
             this.x = x;
+            this.y = y;
         }
 
         @Override

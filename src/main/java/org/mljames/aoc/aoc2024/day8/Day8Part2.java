@@ -33,7 +33,7 @@ public class Day8Part2
                 if (!type.equals(EMPTY_SPACE))
                 {
                     gridsByAntennaType.computeIfAbsent(type, val -> new Grid(height, width));
-                    gridsByAntennaType.get(type).addAntenna(new Position(y, x));
+                    gridsByAntennaType.get(type).addAntenna(new Position(x, y));
                 }
             }
         }
@@ -79,18 +79,18 @@ public class Day8Part2
 
             final List<Position> antinodes = new ArrayList<>();
 
-            Position candidateAntinodeHarmonic1 = new Position(antenna.y + yDifference, antenna.x + xDifference);
+            Position candidateAntinodeHarmonic1 = new Position(antenna.x + xDifference, antenna.y + yDifference);
             while (positionWithinBounds(candidateAntinodeHarmonic1))
             {
                 antinodes.add(candidateAntinodeHarmonic1);
-                candidateAntinodeHarmonic1 = new Position(candidateAntinodeHarmonic1.y + yDifference, candidateAntinodeHarmonic1.x + xDifference);
+                candidateAntinodeHarmonic1 = new Position(candidateAntinodeHarmonic1.x + xDifference, candidateAntinodeHarmonic1.y + yDifference);
             }
 
-            Position candidateAntinodeHarmonic2 = new Position(newAntenna.y - yDifference, newAntenna.x - xDifference);
+            Position candidateAntinodeHarmonic2 = new Position(newAntenna.x - xDifference, newAntenna.y - yDifference);
             while (positionWithinBounds(candidateAntinodeHarmonic2))
             {
                 antinodes.add(candidateAntinodeHarmonic2);
-                candidateAntinodeHarmonic2 = new Position(candidateAntinodeHarmonic2.y - yDifference, candidateAntinodeHarmonic2.x - xDifference);
+                candidateAntinodeHarmonic2 = new Position(candidateAntinodeHarmonic2.x - xDifference, candidateAntinodeHarmonic2.y - yDifference);
             }
 
             return antinodes;
@@ -104,13 +104,13 @@ public class Day8Part2
 
     private static final class Position
     {
-        private final int y;
         private final int x;
+        private final int y;
 
-        private Position(final int y, final int x)
+        private Position(final int x, final int y)
         {
-            this.y = y;
             this.x = x;
+            this.y = y;
         }
 
         @Override
