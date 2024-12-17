@@ -67,29 +67,29 @@ public class Day16Part1
         {
             final PriorityQueue<Route> queue = new PriorityQueue<>(Comparator.comparingInt(r -> r.score));
             final Map<Vector, Integer> vectorScores = new HashMap<>();
-            final Set<Vector> visited = new HashSet<>();
+            final Set<Vector> visitedVectors = new HashSet<>();
 
             queue.add(new Route(0, startingPosition, startingDirection));
 
             while (!queue.isEmpty())
             {
-                final Route current = queue.poll();
+                final Route route = queue.poll();
 
-                if (isEnd(current.currentPosition))
+                if (isEnd(route.currentPosition))
                 {
-                    return current;
+                    return route;
                 }
 
-                final Vector vector = new Vector(current.currentPosition, current.currentDirection);
-                if (visited.contains(vector))
+                final Vector currentVector = new Vector(route.currentPosition, route.currentDirection);
+                if (visitedVectors.contains(currentVector))
                 {
                     continue;
                 }
-                visited.add(vector);
+                visitedVectors.add(currentVector);
 
-                exploreMove(queue, vectorScores, current, MovementType.FORWARD);
-                exploreMove(queue, vectorScores, current, MovementType.TURN_CLOCKWISE);
-                exploreMove(queue, vectorScores, current, MovementType.TURN_ANTI_CLOCKWISE);
+                exploreMove(queue, vectorScores, route, MovementType.FORWARD);
+                exploreMove(queue, vectorScores, route, MovementType.TURN_CLOCKWISE);
+                exploreMove(queue, vectorScores, route, MovementType.TURN_ANTI_CLOCKWISE);
             }
 
             throw new RuntimeException("No valid route found!");
@@ -98,33 +98,32 @@ public class Day16Part1
         private void exploreMove(
                 final PriorityQueue<Route> queue,
                 final Map<Vector, Integer> vectorScores,
-                final Route current,
+                final Route currentRoute,
                 final MovementType movementType)
         {
-            final Route nextRoute = current.copy();
+            final Route route = currentRoute.copy();
 
             switch (movementType)
             {
-                case FORWARD -> nextRoute.moveForward();
+                case FORWARD -> route.moveForward();
                 case TURN_CLOCKWISE ->
                 {
-                    nextRoute.turnClockwise();
-                    nextRoute.moveForward();
+                    route.turnClockwise();
+                    route.moveForward();
                 }
                 case TURN_ANTI_CLOCKWISE ->
                 {
-                    nextRoute.turnAntiClockwise();
-                    nextRoute.moveForward();
+                    route.turnAntiClockwise();
+                    route.moveForward();
                 }
             }
 
-            final Vector nextVector = new Vector(nextRoute.currentPosition, nextRoute.currentDirection);
+            final Vector nextVector = new Vector(route.currentPosition, route.currentDirection);
 
-            if (isFree(nextRoute.currentPosition) || isEnd(nextRoute.currentPosition)
-                    && nextRoute.score < vectorScores.getOrDefault(nextVector, Integer.MAX_VALUE))
+            if (!isWall(route.currentPosition) && route.score < vectorScores.getOrDefault(nextVector, Integer.MAX_VALUE))
             {
-                vectorScores.put(nextVector, nextRoute.score);
-                queue.add(nextRoute);
+                vectorScores.put(nextVector, route.score);
+                queue.add(route);
             }
         }
 
@@ -133,9 +132,9 @@ public class Day16Part1
             return maze[position.y][position.x] == 'E';
         }
 
-        private boolean isFree(final Position position)
+        private boolean isWall(final Position position)
         {
-            return maze[position.y][position.x] == '.';
+            return maze[position.y][position.x] == '#';
         }
     }
 

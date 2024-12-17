@@ -110,23 +110,23 @@ public class Day16Part2
             final Set<Position> positionsOnABestRoute = new HashSet<>();
             while (!queue.isEmpty())
             {
-                final Route currentRoute = queue.poll();
+                final Route route = queue.poll();
 
-                if (isEnd(currentRoute.currentPosition))
+                if (isEnd(route.currentPosition))
                 {
-                    positionsOnABestRoute.addAll(currentRoute.positions);
+                    positionsOnABestRoute.addAll(route.positions);
                     continue;
                 }
 
-                final Vector vector = new Vector(currentRoute.currentPosition, currentRoute.currentDirection);
+                final Vector vector = new Vector(route.currentPosition, route.currentDirection);
 
-                if (currentRoute.score <= bestScores.getOrDefault(vector, Integer.MAX_VALUE))
+                if (route.score <= bestScores.getOrDefault(vector, Integer.MAX_VALUE))
                 {
-                    bestScores.put(vector, currentRoute.score);
+                    bestScores.put(vector, route.score);
 
-                    exploreMove(queue, currentRoute, MovementType.FORWARD);
-                    exploreMove(queue, currentRoute, MovementType.TURN_CLOCKWISE);
-                    exploreMove(queue, currentRoute, MovementType.TURN_ANTI_CLOCKWISE);
+                    exploreMove(queue, route, MovementType.FORWARD);
+                    exploreMove(queue, route, MovementType.TURN_CLOCKWISE);
+                    exploreMove(queue, route, MovementType.TURN_ANTI_CLOCKWISE);
                 }
             }
 
@@ -138,26 +138,26 @@ public class Day16Part2
                 final Route currentRoute,
                 final MovementType movementType)
         {
-            final Route nextRoute = currentRoute.copy();
+            final Route route = currentRoute.copy();
 
             switch (movementType)
             {
-                case FORWARD -> nextRoute.moveForward();
+                case FORWARD -> route.moveForward();
                 case TURN_CLOCKWISE ->
                 {
-                    nextRoute.turnClockwise();
-                    nextRoute.moveForward();
+                    route.turnClockwise();
+                    route.moveForward();
                 }
                 case TURN_ANTI_CLOCKWISE ->
                 {
-                    nextRoute.turnAntiClockwise();
-                    nextRoute.moveForward();
+                    route.turnAntiClockwise();
+                    route.moveForward();
                 }
             }
 
-            if (isFree(nextRoute.currentPosition) || isEnd(nextRoute.currentPosition) && nextRoute.score <= BEST_SCORE)
+            if (!isWall(route.currentPosition) && route.score <= BEST_SCORE)
             {
-                queue.add(nextRoute);
+                queue.add(route);
             }
         }
 
@@ -166,9 +166,9 @@ public class Day16Part2
             return maze[position.y][position.x] == 'E';
         }
 
-        private boolean isFree(final Position position)
+        private boolean isWall(final Position position)
         {
-            return maze[position.y][position.x] == '.';
+            return maze[position.y][position.x] == '#';
         }
     }
 
