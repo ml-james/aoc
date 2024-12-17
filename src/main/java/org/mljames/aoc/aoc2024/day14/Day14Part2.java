@@ -4,11 +4,14 @@ import org.mljames.aoc.PuzzleInputReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.locks.LockSupport;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -17,7 +20,6 @@ public class Day14Part2
 {
     private static final int WIDTH = 101;
     private static final int HEIGHT = 103;
-    private static final int SECONDS = 100;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Day14Part2.class);
 
@@ -32,8 +34,6 @@ public class Day14Part2
 
         final List<String> input = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part2/puzzle_input.txt");
 
-        final Set<Position> targetChristmasTreePositions = getChristmasTreePositions();
-
         final List<Robot> robots = new ArrayList<>();
         for (final String startingConfiguration : input)
         {
@@ -45,40 +45,112 @@ public class Day14Part2
         }
 
         int secondsToDisplayChristmasTree = 0;
-        while (true)
+        boolean keepGoing = true;
+        while (keepGoing)
         {
             robots.forEach(Robot::move);
 
+            secondsToDisplayChristmasTree += 1;
+
             final Set<Position> currentRobotPositions = robots.stream().map(r -> r.currentPosition).collect(Collectors.toSet());
 
-            if (currentRobotPositions.containsAll(targetChristmasTreePositions))
+            final Map<Integer, List<Position>> robotsByX = currentRobotPositions.stream().collect(Collectors.groupingBy(position -> position.xPosition));
+            final Map<Integer, List<Position>> robotsByY = currentRobotPositions.stream().collect(Collectors.groupingBy(position -> position.yPosition));
+
+            int maxColumnStreakOfRobots = robotsByX.values().stream().map(Day14Part2::findMaxColumnStreakOfRobots).mapToInt(Integer::intValue).max().orElseThrow();
+            int maxRowStreakOfRobots = robotsByY.values().stream().map(Day14Part2::findMaxRowStreakOfRobots).mapToInt(Integer::intValue).max().orElseThrow();
+
+            if (maxColumnStreakOfRobots > WIDTH / 10 || maxRowStreakOfRobots > HEIGHT / 10)
             {
-                LOGGER.info("Discovered the target Christmas Tree positions after: {}.", secondsToDisplayChristmasTree);
-                break;
+                printRobots(currentRobotPositions, HEIGHT, WIDTH);
+                LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
+
+                LOGGER.info("Seconds elapsed and finding a point of interest for the easter egg: {}.", secondsToDisplayChristmasTree);
+                keepGoing = false;
             }
-            secondsToDisplayChristmasTree += 1;
-            LOGGER.info("Seconds elapsed without finding the easter egg: {}.", secondsToDisplayChristmasTree);
-        }
-
-        LOGGER.info("It takes {}s for the robots to display the easter egg {}, calculated in {}ms.", SECONDS, secondsToDisplayChristmasTree, System.currentTimeMillis() - start);
-    }
-
-    private static Set<Position> getChristmasTreePositions()
-    {
-        final List<String> christmasTree = PuzzleInputReader.readInputAsStrings("aoc2024/day14/part2/christmas_tree.txt");
-
-        final Set<Position> christmasTreePositions = new HashSet<>();
-        for (int i = 0; i < christmasTree.size(); i++)
-        {
-            for (int j = 0; j < christmasTree.get(i).length(); j++)
+            else
             {
-                if (christmasTree.get(i).charAt(j) == 'X')
+                if (secondsToDisplayChristmasTree % 1000 == 0)
                 {
-                    christmasTreePositions.add(new Position(j, i));
+                    LOGGER.info("Seconds elapsed and looking for the easter egg: {}.", secondsToDisplayChristmasTree);
                 }
             }
         }
-        return christmasTreePositions;
+
+        LOGGER.info("It takes {}s for the robots to display the easter egg, calculated in {}ms.", secondsToDisplayChristmasTree, System.currentTimeMillis() - start);
+    }
+
+    private static int findMaxRowStreakOfRobots(final List<Position> yConstantPositions)
+    {
+        final List<Position> sortedPositionsByX = new ArrayList<>(yConstantPositions);
+        sortedPositionsByX.sort(Comparator.comparingInt((Position p) -> p.xPosition));
+
+        int maxStreak = 0;
+        int currentXValue = sortedPositionsByX.getFirst().xPosition;
+        int currentStreak = 0;
+        for (int i = 1; i < sortedPositionsByX.size(); i++)
+        {
+            if (sortedPositionsByX.get(i).xPosition == currentXValue + 1)
+            {
+                currentStreak += 1;
+            }
+            else
+            {
+                if (currentStreak > maxStreak)
+                {
+                    maxStreak = currentStreak;
+                    currentStreak = 0;
+                }
+            }
+            currentXValue = sortedPositionsByX.get(i).xPosition;
+        }
+        return maxStreak;
+    }
+
+    private static int findMaxColumnStreakOfRobots(final List<Position> xConstantPositions)
+    {
+        final List<Position> sortedPlotsByY = new ArrayList<>(xConstantPositions);
+        sortedPlotsByY.sort(Comparator.comparingInt((Position p) -> p.yPosition));
+
+        int maxStreak = 0;
+        int currentYValue = xConstantPositions.getFirst().yPosition;
+        int currentStreak = 0;
+        for (int i = 1; i < xConstantPositions.size(); i++)
+        {
+            if (xConstantPositions.get(i).yPosition == currentYValue + 1)
+            {
+                currentStreak += 1;
+            }
+            else
+            {
+                if (currentStreak > maxStreak)
+                {
+                    maxStreak = currentStreak;
+                    currentStreak = 0;
+                }
+            }
+            currentYValue = xConstantPositions.get(i).yPosition;
+        }
+        return maxStreak;
+    }
+
+    private static void printRobots(final Set<Position> robotPositions, final int yRange, final int xRange)
+    {
+        for (int y = 0; y < yRange; y++)
+        {
+            for (int x = 0; x < xRange; x++)
+            {
+                if (robotPositions.contains(new Position(x, y)))
+                {
+                    System.out.print("X");
+                }
+                else
+                {
+                    System.out.print(".");
+                }
+            }
+            System.out.print("\n");
+        }
     }
 
     private static int extractInt(final Matcher matcher)
