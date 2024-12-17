@@ -5,7 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class Day15Part1
 {
@@ -71,27 +74,40 @@ public class Day15Part1
         private void move(final int newXPosition, final int newYPosition, final Direction direction)
         {
             final Position newRobotPosition = new Position(newXPosition, newYPosition);
-            if (!isWall(newRobotPosition))
+
+            final List<Position> connectedBoxes = findConnectedBoxes(direction);
+            final Set<Position> moveRegionCandidate = getMoveRegionCandidate(robotPosition, connectedBoxes);
+
+            if (regionMoveable(moveRegionCandidate, direction))
             {
-                final List<Position> boxes = findBoxNeighbours(direction);
-                if (boxNeighboursMoveable(boxes, direction))
-                {
-                    moveBoxes(direction, boxes);
-                    moveRobot(newRobotPosition);
-                }
+                final Set<Position> postMoveRegion = new HashSet<>();
+                postMoveRegion.addAll(moveBoxes(direction, connectedBoxes));
+                postMoveRegion.add(moveRobot(newRobotPosition));
+
+                moveRegionCandidate.removeAll(postMoveRegion);
+                moveRegionCandidate.forEach(p -> units[p.yPosition][p.xPosition] = '.');
             }
         }
 
-        private List<Position> findBoxNeighbours(final Direction direction)
+        private Set<Position> getMoveRegionCandidate(final Position robotPosition, final List<Position> boxPositions)
+        {
+            final Set<Position> positions = new HashSet<>();
+            positions.add(robotPosition);
+            positions.addAll(boxPositions);
+
+            return positions;
+        }
+
+        private List<Position> findConnectedBoxes(final Direction direction)
         {
             Position position = nextPosition(robotPosition, direction);
-            final List<Position> boxes = new ArrayList<>();
+            final List<Position> connectedPositions = new ArrayList<>();
             while (isBox(position))
             {
-                boxes.add(position);
+                connectedPositions.add(position);
                 position = nextPosition(position, direction);
             }
-            return boxes;
+            return connectedPositions;
         }
 
 
@@ -117,7 +133,7 @@ public class Day15Part1
             };
         }
 
-        private boolean boxNeighboursMoveable(final List<Position> positions, final Direction direction)
+        private boolean regionMoveable(final Set<Position> positions, final Direction direction)
         {
             for (final Position position : positions)
             {
@@ -129,21 +145,24 @@ public class Day15Part1
             return true;
         }
 
-        private void moveRobot(final Position newRobotPosition)
+        private Position moveRobot(final Position newRobotPosition)
         {
-            units[robotPosition.yPosition][robotPosition.xPosition] = '.';
-
             robotPosition = newRobotPosition;
             units[robotPosition.yPosition][robotPosition.xPosition] = '@';
+
+            return newRobotPosition;
         }
 
-        private void moveBoxes(final Direction direction, final List<Position> boxes)
+        private Set<Position> moveBoxes(final Direction direction, final List<Position> boxes)
         {
+            final Set<Position> newPositions = new HashSet<>();
             for (final Position position : boxes)
             {
                 final Position newPosition = nextPosition(position, direction);
                 units[newPosition.yPosition][newPosition.xPosition] = 'O';
+                newPositions.add(newPosition);
             }
+            return newPositions;
         }
 
         private boolean isWall(final Position position)
@@ -182,6 +201,27 @@ public class Day15Part1
         {
             this.xPosition = xPosition;
             this.yPosition = yPosition;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass())
+            {
+                return false;
+            }
+            final Position position = (Position) o;
+            return xPosition == position.xPosition && yPosition == position.yPosition;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(xPosition, yPosition);
         }
     }
 

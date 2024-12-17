@@ -24,9 +24,9 @@ public class Day15Part2
 
         final char[] robotMoves = String.join("", input2).toCharArray();
 
-        for (int i = 0; i < robotMoves.length; i++)
+        for (final char robotMove : robotMoves)
         {
-            warehouse.move(Direction.fromChar(robotMoves[i]));
+            warehouse.move(Direction.fromChar(robotMove));
         }
 
         LOGGER.info("After the robot has finished moving the sum of all the boxes GPS coordinates is: {}, calculated in {}ms.", warehouse.getGpsCoordinateSum(), System.currentTimeMillis() - start);
@@ -90,30 +90,31 @@ public class Day15Part2
         private void move(final int newXPosition, final int newYPosition, final Direction direction)
         {
             final Position newRobotPosition = new Position(newXPosition, newYPosition);
-            if (!isWall(newRobotPosition))
+
+            final Set<Box> connectedBoxes = findConnectedBoxes(new HashSet<>(), robotPosition, direction);
+            final Set<Position> moveRegionCandidate = getMoveRegionCandidate(robotPosition, connectedBoxes);
+
+            if (regionMoveable(moveRegionCandidate, direction))
             {
-                final Set<Box> boxes = findBoxNeighbours(new HashSet<>(), robotPosition, direction);
-                if (noBoxNeighbours(boxes))
-                {
-                    moveRobot(newRobotPosition);
-                }
-                else
-                {
-                    if (boxesNeighboursMoveable(boxes.stream().toList(), direction))
-                    {
-                        moveBoxes(direction, boxes.stream().toList());
-                        moveRobot(newRobotPosition);
-                    }
-                }
+                final Set<Position> postMoveRegion = new HashSet<>();
+                postMoveRegion.addAll(moveBoxes(direction, connectedBoxes));
+                postMoveRegion.add(moveRobot(newRobotPosition));
+
+                moveRegionCandidate.removeAll(postMoveRegion);
+                moveRegionCandidate.forEach(p -> units[p.yPosition][p.xPosition] = '.');
             }
         }
 
-        private static boolean noBoxNeighbours(final Set<Box> boxes)
+        private Set<Position> getMoveRegionCandidate(final Position robotPosition, final Set<Box> boxPositions)
         {
-            return boxes.isEmpty();
+            final Set<Position> positions = new HashSet<>();
+            positions.add(robotPosition);
+            positions.addAll(boxPositions.stream().map(b -> b.position).toList());
+
+            return positions;
         }
 
-        private Set<Box> findBoxNeighbours(final Set<Box> visitedBoxes, final Position currentPosition, final Direction direction)
+        private Set<Box> findConnectedBoxes(final Set<Box> visitedBoxes, final Position currentPosition, final Direction direction)
         {
             Position position = nextPosition(currentPosition, direction);
             while (isBox(position))
@@ -124,7 +125,7 @@ public class Day15Part2
                 if (!visitedBoxes.contains(adjacentBox))
                 {
                     visitedBoxes.add(adjacentBox);
-                    findBoxNeighbours(visitedBoxes, adjacentBox.position, direction);
+                    findConnectedBoxes(visitedBoxes, adjacentBox.position, direction);
                 }
 
                 position = nextPosition(position, direction);
@@ -172,11 +173,11 @@ public class Day15Part2
             };
         }
 
-        private boolean boxesNeighboursMoveable(final List<Box> boxes, final Direction direction)
+        private boolean regionMoveable(final Set<Position> positions, final Direction direction)
         {
-            for (final Box box : boxes)
+            for (final Position position : positions)
             {
-                if (isWall(nextPosition(box.position, direction)))
+                if (isWall(nextPosition(position, direction)))
                 {
                     return false;
                 }
@@ -184,21 +185,25 @@ public class Day15Part2
             return true;
         }
 
-        private void moveRobot(final Position newRobotPosition)
+        private Position moveRobot(final Position newRobotPosition)
         {
-            units[robotPosition.yPosition][robotPosition.xPosition] = '.';
             robotPosition = newRobotPosition;
 
             units[robotPosition.yPosition][robotPosition.xPosition] = '@';
+
+            return newRobotPosition;
         }
 
-        private void moveBoxes(final Direction direction, final List<Box> boxes)
+        private Set<Position> moveBoxes(final Direction direction, final Set<Box> boxes)
         {
+            final Set<Position> newPositions = new HashSet<>();
             for (final Box box : boxes)
             {
                 final Position newPosition = nextPosition(box.position, direction);
                 units[newPosition.yPosition][newPosition.xPosition] = box.box;
+                newPositions.add(newPosition);
             }
+            return newPositions;
         }
 
         private boolean isWall(final Position position)
@@ -233,27 +238,9 @@ public class Day15Part2
             {
                 for (int x = 0; x < width; x++)
                 {
-                    if (units[y][x] == '[' && x < width / 2)
+                    if (units[y][x] == '[')
                     {
-                        if (y < height / 2)
-                        {
-                            gpsCoordinateSum = gpsCoordinateSum + (100L * y + x);
-                        }
-                        else
-                        {
-                            gpsCoordinateSum = gpsCoordinateSum + (100L * (height - y - 1) + x);
-                        }
-                    }
-                    else if (units[y][x] == ']' && x > width / 2)
-                    {
-                        if (y < height / 2)
-                        {
-                            gpsCoordinateSum = gpsCoordinateSum + (100L * y + (width - x - 1));
-                        }
-                        else
-                        {
-                            gpsCoordinateSum = gpsCoordinateSum + (100L * (height - y - 1) + (width - x - 1));
-                        }
+                        gpsCoordinateSum += (100L * y + x);
                     }
                 }
             }
@@ -339,20 +326,16 @@ public class Day15Part2
             if (c == '^')
             {
                 return UP;
-            }
-            else if (c == '>')
+            } else if (c == '>')
             {
                 return RIGHT;
-            }
-            else if (c == 'v')
+            } else if (c == 'v')
             {
                 return DOWN;
-            }
-            else if (c == '<')
+            } else if (c == '<')
             {
                 return LEFT;
-            }
-            else
+            } else
             {
                 throw new RuntimeException("Unexpected char representing a direction!!");
             }
