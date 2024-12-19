@@ -21,7 +21,7 @@ public class Day17Part1
         final List<Integer> program = List.of(2,4,1,1,7,5,1,5,4,5,0,3,5,5,3,0);
 
         final List<Integer> out = new ArrayList<>();
-        while (pointer.pointer < program.size())
+        while (pointer.pointer < program.size() - 1)
         {
             final Instruction instructionOpcode = Instruction.fromValue(program.get(pointer.pointer++));
             final Operand operand = Operand.fromValue(program.get(pointer.pointer++));
