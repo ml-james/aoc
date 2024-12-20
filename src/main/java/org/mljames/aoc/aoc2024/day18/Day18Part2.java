@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 
-public class Day18Part1
+public class Day18Part2
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Day18Part1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Day18Part2.class);
 
     private static final int MEGABYTE = 1024;
 
@@ -33,9 +33,17 @@ public class Day18Part1
             memorySpace.addMemory(input.get(i).get(0), input.get(i).get(1));
         }
 
-        final Route shortestRoute = memorySpace.findShortestRoute();
+        int byteNumber = MEGABYTE;
+        while (memorySpace.hasValidPath())
+        {
+            byteNumber += 1;
+            memorySpace.addMemory(input.get(byteNumber - 1).get(0), input.get(byteNumber - 1).get(1));
+        }
 
-        LOGGER.info("The shortest route traversing the memory is: {}, calculated in {}ms.", shortestRoute.length, System.currentTimeMillis() - start);
+        LOGGER.info("The byte that prevents an escape from the memory state is: [{},{}], calculated in {}ms.",
+                input.get(byteNumber - 1).get(0),
+                input.get(byteNumber - 1).get(1),
+                System.currentTimeMillis() - start);
     }
     
     private static final class MemorySpace
@@ -69,7 +77,7 @@ public class Day18Part1
             return space[position.y][position.x] == 'X';
         }
 
-        private Route findShortestRoute()
+        private boolean hasValidPath()
         {
             final PriorityQueue<Route> queue = new PriorityQueue<>(Comparator.comparingInt(r -> r.length));
             final Map<Position, Integer> positionScores = new HashMap<>();
@@ -82,7 +90,7 @@ public class Day18Part1
 
                 if (isEnd(route.currentPosition))
                 {
-                    return route;
+                    return true;
                 }
 
                 exploreMove(queue, positionScores, route, MovementType.FORWARD);
@@ -91,7 +99,7 @@ public class Day18Part1
                 exploreMove(queue, positionScores, route, MovementType.BACKWARD);
             }
 
-            throw new RuntimeException("No valid route found!");
+            return false;
         }
 
         private void exploreMove(
