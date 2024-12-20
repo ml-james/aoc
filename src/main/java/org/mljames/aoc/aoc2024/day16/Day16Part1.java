@@ -244,7 +244,8 @@ public class Day16Part1
 
     private static final class Position
     {
-        final int x, y;
+        private final int x;
+        private final int y;
 
         private Position(final int x, final int y)
         {
