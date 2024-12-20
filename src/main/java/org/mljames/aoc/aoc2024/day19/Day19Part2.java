@@ -50,7 +50,7 @@ public class Day19Part2
             final String design,
             final Set<String> allowedPatterns,
             final int longestAllowedPattern,
-            final Map<String, Long> subStringCombinations)
+            final Map<String, Long> combinationsCounter)
     {
         final Queue<StringBuilder> queue = new PriorityQueue<>(Comparator.comparing(sb -> sb.length()));
         queue.add(new StringBuilder());
@@ -59,7 +59,7 @@ public class Day19Part2
         while (!queue.isEmpty())
         {
             final StringBuilder candidate = queue.poll();
-            final long candidateCombinations = subStringCombinations.getOrDefault(candidate.toString(), 1L);
+            final long candidateCombinations = combinationsCounter.getOrDefault(candidate.toString(), 1L);
 
             if (candidate.toString().equals(design))
             {
@@ -74,11 +74,11 @@ public class Day19Part2
                 if (allowedPatterns.contains(newSubstringToMatch))
                 {
                     final StringBuilder newCandidate = new StringBuilder(candidate).append(newSubstringToMatch);
-                    if (!subStringCombinations.containsKey(newCandidate.toString()))
+                    if (!combinationsCounter.containsKey(newCandidate.toString()))
                     {
                         queue.add(newCandidate);
                     }
-                    subStringCombinations.merge(newCandidate.toString(), candidateCombinations, Long::sum);
+                    combinationsCounter.merge(newCandidate.toString(), candidateCombinations, Long::sum);
                 }
             }
         }
