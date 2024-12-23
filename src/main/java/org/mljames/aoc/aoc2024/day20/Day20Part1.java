@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,8 +31,7 @@ public class Day20Part1
 
         final Racetrack racetrack = Racetrack.create(input, height, width);
 
-        final Map<Position, Integer> noCheatBestPositionTimes = new HashMap<>(Map.of(racetrack.start, 0));
-        final Race noCheatRace = racetrack.race(noCheatBestPositionTimes, racetrack.start, 0);
+        final Race noCheatRace = racetrack.race(new HashMap<>(Map.of(racetrack.start, 0)), racetrack.start, 0);
 
         final List<Cheat> allCheats = new ArrayList<>();
         for (final Map.Entry<Position, Integer> entry : noCheatRace.racePositions.entrySet())
@@ -40,8 +40,7 @@ public class Day20Part1
                     entry.getKey(),
                     entry.getValue(),
                     2,
-                    noCheatBestPositionTimes,
-                    noCheatRace.racePositions.keySet()));
+                    noCheatRace.getRacePositions()));
         }
 
         if (false)
@@ -212,8 +211,7 @@ public class Day20Part1
                 final Position cheatStart,
                 final int cheatStartTime,
                 final int cheatLength,
-                final Map<Position, Integer> noCheatBestPositionTimes,
-                final Set<Position> noCheatRacePositions)
+                final List<Position> noCheatRacePositions)
         {
             final Queue<Race> queue = new PriorityQueue<>(Comparator.comparing((Race r) -> r.currentTime));
             queue.add(new Race(cheatStart, cheatStartTime));
@@ -224,15 +222,16 @@ public class Day20Part1
             {
                 final Race routeCandidate = queue.poll();
 
-                if (shouldRecordCheat(routeCandidate, noCheatBestPositionTimes, noCheatRacePositions))
+                if (shouldRecordCheat(routeCandidate, noCheatRacePositions))
                 {
                     cheats.add(new Cheat(
                             cheatStart,
                             routeCandidate.currentPosition,
-                            noCheatBestPositionTimes.get(routeCandidate.currentPosition) - routeCandidate.currentTime));
+                            noCheatRacePositions.indexOf(routeCandidate.currentPosition) - routeCandidate.currentTime));
 
                 }
-                else
+
+                if (cheatActive(routeCandidate.currentTime, cheatStartTime, cheatLength))
                 {
                     exploreCheat(
                             routeCandidate,
@@ -301,12 +300,10 @@ public class Day20Part1
         }
 
         private boolean shouldRecordCheat(
-                final Race routeCandidate,
-                final Map<Position, Integer> noCheatBestPositionTimes,
-                final Set<Position> noCheatRacePositions)
+                final Race raceCandidate,
+                final List<Position> noCheatRacePositions)
         {
-            return noCheatRacePositions.contains(routeCandidate.currentPosition) &&
-                    routeCandidate.currentTime < noCheatBestPositionTimes.get(routeCandidate.currentPosition);
+            return noCheatRacePositions.contains(raceCandidate.currentPosition) && raceCandidate.currentTime < noCheatRacePositions.indexOf(raceCandidate.currentPosition);
         }
     }
 
@@ -362,18 +359,18 @@ public class Day20Part1
 
     private static final class Race
     {
-        private final Map<Position, Integer> racePositions;
+        private final LinkedHashMap<Position, Integer> racePositions;
         private Position currentPosition;
         private int currentTime;
 
         private Race(final Position currentPosition, final int currentTime)
         {
-            this.racePositions = new HashMap<>(Map.of(currentPosition, currentTime));
+            this.racePositions = new LinkedHashMap<>(Map.of(currentPosition, currentTime));
             this.currentPosition = currentPosition;
             this.currentTime = currentTime;
         }
 
-        private Race(final Map<Position, Integer> racePositions, final Position currentPosition, int currentTime)
+        private Race(final LinkedHashMap<Position, Integer> racePositions, final Position currentPosition, int currentTime)
         {
             this.racePositions = racePositions;
             this.currentPosition = currentPosition;
@@ -382,7 +379,7 @@ public class Day20Part1
 
         private static Race copy(final Race race)
         {
-            return new Race(new HashMap<>(race.racePositions), race.currentPosition, race.currentTime);
+            return new Race(new LinkedHashMap<>(race.racePositions), race.currentPosition, race.currentTime);
         }
 
         void move(final MovementType movementType)
@@ -398,6 +395,11 @@ public class Day20Part1
             currentTime += 1;
             currentPosition = newPosition;
             racePositions.put(currentPosition, currentTime);
+        }
+
+        public List<Position> getRacePositions()
+        {
+            return new ArrayList<>(racePositions.keySet());
         }
 
         @Override

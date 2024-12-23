@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Day20Part2
 {
@@ -30,8 +32,7 @@ public class Day20Part2
 
         final Racetrack racetrack = Racetrack.create(input, height, width);
 
-        final Map<Position, Integer> noCheatBestPositionTimes = new HashMap<>(Map.of(racetrack.start, 0));
-        final Race noCheatRace = racetrack.race(noCheatBestPositionTimes, racetrack.start, 0);
+        final Race noCheatRace = racetrack.race(new HashMap<>(Map.of(racetrack.start, 0)), racetrack.start, 0);
 
         final List<Cheat> allCheats = new ArrayList<>();
         for (final Map.Entry<Position, Integer> entry : noCheatRace.racePositions.entrySet())
@@ -40,8 +41,7 @@ public class Day20Part2
                     entry.getKey(),
                     entry.getValue(),
                     20,
-                    noCheatBestPositionTimes,
-                    noCheatRace.racePositions.keySet()));
+                    noCheatRace.getRacePositions()));
         }
 
         if (false)
@@ -49,8 +49,11 @@ public class Day20Part2
             allCheats.forEach(c -> printRoute(racetrack, noCheatRace, c));
         }
 
-        LOGGER.info("The number of cheats that would save 100 picoseconds are: {}, calculated in {}ms.",
-                allCheats.stream().filter(c -> c.picosecondsSaved >= 100).toList().size(),
+        final int picosecondThreshold = 100;
+        LOGGER.info("The number of cheats that would save {} picoseconds is: {} (all cheats above threshold are [{}]), calculated in {}ms.",
+                picosecondThreshold,
+                allCheats.stream().filter(c -> c.picosecondsSaved >= picosecondThreshold).toList().size(),
+                allCheats.stream().filter(c -> c.picosecondsSaved >= picosecondThreshold).collect(Collectors.groupingBy(c -> c.picosecondsSaved, Collectors.counting())),
                 System.currentTimeMillis() - start);
     }
 
@@ -208,34 +211,34 @@ public class Day20Part2
             }
         }
 
-        public List<Cheat> cheat(
+        public Set<Cheat> cheat(
                 final Position cheatStart,
                 final int cheatStartTime,
                 final int cheatLength,
-                final Map<Position, Integer> noCheatBestPositionTimes,
-                final Set<Position> noCheatRacePositions)
+                final List<Position> noCheatRacePositions)
         {
             final Queue<Race> queue = new PriorityQueue<>(Comparator.comparing((Race r) -> r.currentTime));
             queue.add(new Race(cheatStart, cheatStartTime));
 
             final List<Cheat> cheats = new ArrayList<>();
-            final Set<Position> cheatPositionsVisited = new HashSet<>();
+            final Map<Position, Integer> cheatPositionsVisited = new HashMap<>();
             while (!queue.isEmpty())
             {
-                final Race routeCandidate = queue.poll();
+                final Race raceCandidate = queue.poll();
 
-                if (shouldRecordCheat(routeCandidate, noCheatBestPositionTimes, noCheatRacePositions))
+                if (shouldRecordCheat(raceCandidate, noCheatRacePositions))
                 {
-                    cheats.add(new Cheat(
-                            cheatStart,
-                            routeCandidate.currentPosition,
-                            noCheatBestPositionTimes.get(routeCandidate.currentPosition) - routeCandidate.currentTime));
-
+                        cheats.add(
+                                new Cheat(
+                                        start,
+                                        raceCandidate.currentPosition,
+                                        noCheatRacePositions.indexOf(raceCandidate.currentPosition) - raceCandidate.currentTime));
                 }
-                else
+
+                if (cheatActive(raceCandidate.currentTime, cheatStartTime, cheatLength))
                 {
                     exploreCheat(
-                            routeCandidate,
+                            raceCandidate,
                             MovementType.FORWARD,
                             queue,
                             cheatStartTime,
@@ -243,7 +246,7 @@ public class Day20Part2
                             cheatPositionsVisited);
 
                     exploreCheat(
-                            routeCandidate,
+                            raceCandidate,
                             MovementType.BACKWARD,
                             queue,
                             cheatStartTime,
@@ -251,7 +254,7 @@ public class Day20Part2
                             cheatPositionsVisited);
 
                     exploreCheat(
-                            routeCandidate,
+                            raceCandidate,
                             MovementType.LEFT,
                             queue,
                             cheatStartTime,
@@ -259,7 +262,7 @@ public class Day20Part2
                             cheatPositionsVisited);
 
                     exploreCheat(
-                            routeCandidate,
+                            raceCandidate,
                             MovementType.RIGHT,
                             queue,
                             cheatStartTime,
@@ -268,7 +271,7 @@ public class Day20Part2
                 }
             }
 
-            return cheats;
+            return new HashSet<>(cheats);
         }
 
         private void exploreCheat(
@@ -277,7 +280,7 @@ public class Day20Part2
                 final Queue<Race> queue,
                 final int cheatStartTime,
                 final int cheatLength,
-                final Set<Position> cheatPositionsVisited)
+                final Map<Position, Integer> cheatPositionsVisited)
         {
             final Race newRaceCandidate = Race.copy(race);
             newRaceCandidate.move(movementType);
@@ -287,9 +290,9 @@ public class Day20Part2
 
             if (isInBounds(currentPosition))
             {
-                if (cheatActive(currentTime, cheatStartTime, cheatLength) && !cheatPositionsVisited.contains(currentPosition))
+                if (cheatActive(currentTime, cheatStartTime, cheatLength) && currentTime < cheatPositionsVisited.getOrDefault(currentPosition, Integer.MAX_VALUE))
                 {
-                    cheatPositionsVisited.add(currentPosition);
+                    cheatPositionsVisited.put(currentPosition, currentTime);
                     queue.add(newRaceCandidate);
                 }
             }
@@ -301,12 +304,10 @@ public class Day20Part2
         }
 
         private boolean shouldRecordCheat(
-                final Race routeCandidate,
-                final Map<Position, Integer> noCheatBestPositionTimes,
-                final Set<Position> noCheatRacePositions)
+                final Race raceCandidate,
+                final List<Position> noCheatRacePositions)
         {
-            return noCheatRacePositions.contains(routeCandidate.currentPosition) &&
-                    routeCandidate.currentTime < noCheatBestPositionTimes.get(routeCandidate.currentPosition);
+            return noCheatRacePositions.contains(raceCandidate.currentPosition) && raceCandidate.currentTime < noCheatRacePositions.indexOf(raceCandidate.currentPosition);
         }
     }
 
@@ -362,27 +363,32 @@ public class Day20Part2
 
     private static final class Race
     {
-        private final Map<Position, Integer> racePositions;
+        private final LinkedHashMap<Position, Integer> racePositions;
         private Position currentPosition;
         private int currentTime;
 
         private Race(final Position currentPosition, final int currentTime)
         {
-            this.racePositions = new HashMap<>(Map.of(currentPosition, currentTime));
+            this.racePositions = new LinkedHashMap<>(Map.of(currentPosition, currentTime));
             this.currentPosition = currentPosition;
             this.currentTime = currentTime;
         }
 
-        private Race(final Map<Position, Integer> racePositions, final Position currentPosition, int currentTime)
+        private Race(final LinkedHashMap<Position, Integer> racePositions, final Position currentPosition, int currentTime)
         {
             this.racePositions = racePositions;
             this.currentPosition = currentPosition;
             this.currentTime = currentTime;
         }
 
+        private List<Position> getRacePositions()
+        {
+            return new ArrayList<>(racePositions.keySet());
+        }
+
         private static Race copy(final Race race)
         {
-            return new Race(new HashMap<>(race.racePositions), race.currentPosition, race.currentTime);
+            return new Race(new LinkedHashMap<>(race.racePositions), race.currentPosition, race.currentTime);
         }
 
         void move(final MovementType movementType)
