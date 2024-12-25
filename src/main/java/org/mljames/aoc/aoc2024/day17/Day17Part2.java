@@ -23,6 +23,18 @@ public class Day17Part2
                 System.currentTimeMillis() - start);
     }
 
+    // 2,4,1,1,7,5,1,5,4,5,0,3,5,5,3,0
+    // e.g.                --> 61
+    // b = a % 8    (2, 4) --> 5
+    // b = b ^ 1    (1, 1) --> 4
+    // c = a / 2^b  (7, 5) --> 3
+    // b = b ^ 5    (1, 5) --> 1
+    // b = b ^ c    (4, 5) --> 2
+    // a = a / 8    (0, 3) --> 7
+    // out = b % 8  (5, 5) --> 2
+
+    // a =/ 0 back to beginning else end
+
     private static long findRegisterACandidate(final List<Integer> program, final long registerACandidate)
     {
         for (int i = 0; i < 64; i++)
