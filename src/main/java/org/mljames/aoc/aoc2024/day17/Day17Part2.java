@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 public class Day17Part2
 {
@@ -15,53 +14,57 @@ public class Day17Part2
     {
         final long start = System.currentTimeMillis();
 
-        final List<Long> program = List.of(2L,4L,1L,1L,7L,5L,1L,5L,4L,5L,0L,3L,5L,5L,3L,0L);
+        final List<Integer> program = List.of(2,4,1,1,7,5,1,5,4,5,0,3,5,5,3,0);
 
-        final Registers registers = new Registers(0, 0);
+        final long registerAValue = findRegisterACandidate(program, 0);
 
+        LOGGER.info("The smallest register A value for the program to output itself is {}, calculated in {}ms.",
+                registerAValue,
+                System.currentTimeMillis() - start);
+    }
+
+    private static long findRegisterACandidate(final List<Integer> program, final long registerACandidate)
+    {
+        for (int i = 0; i < 64; i++)
+        {
+            long newRegisterACandidate = registerACandidate << 3 | i;
+            final List<Integer> newOut = runProgram(program, newRegisterACandidate);
+            if (newOut.equals(program))
+            {
+                return newRegisterACandidate;
+            }
+            else if (newOut.equals(program.subList(program.size() - newOut.size(), program.size())))
+            {
+                return findRegisterACandidate(program, newRegisterACandidate);
+            }
+        }
+        throw new RuntimeException("Should have found solution!!");
+    }
+
+    private static List<Integer> runProgram(final List<Integer> program, final long registerAValue)
+    {
+        final List<Integer> out = new ArrayList<>();
         final InstructionPointer pointer = new InstructionPointer();
-
-        long registerAValue = 0;
-        final List<Operation> operations = new ArrayList<>();
+        final Register register = new Register(registerAValue, 0, 0);
         while (pointer.pointer < program.size() - 1)
         {
             final Instruction instructionOpcode = Instruction.fromValue(program.get(pointer.pointer++));
             final Operand operand = Operand.fromValue(program.get(pointer.pointer++));
 
-            final Operation operation = instructionOpcode.operate(operand, registers);
-            operations.add(operation);
+            instructionOpcode.operate(operand, register, pointer, out);
         }
-
-        LOGGER.info("The lowest value for register A for the program to output itself is {}, calculated in {}ms.",
-                registerAValue,
-                System.currentTimeMillis() - start);
+        return out;
     }
 
-    private void operate(
-            final Operation operation,
-            final Registers registers,
-            final long initialRegisterAValue,
-            final List<Long> out,
-            final InstructionPointer pointer)
-    {
-        switch (operation.action)
-        {
-            case SET_REGISTER_A -> registers.registerA = operation.result.apply(initialRegisterAValue);
-            case SET_REGISTER_B -> registers.registerB = operation.result.apply(initialRegisterAValue);
-            case Action.SET_REGISTER_C -> registers.registerC = operation.result.apply(initialRegisterAValue);
-            case OUT -> out.add(initialRegisterAValue);
-            case MOVE_POINTER -> pointer.pointer = operation.result.apply(initialRegisterAValue).intValue();
-        }
-    }
-
-    private static final class Registers
+    private static final class Register
     {
         long registerA;
         long registerB;
         long registerC;
 
-        public Registers(final long registerB, final long registerC)
+        public Register(final long registerA, final long registerB, final long registerC)
         {
+            this.registerA = registerA;
             this.registerB = registerB;
             this.registerC = registerC;
         }
@@ -71,7 +74,7 @@ public class Day17Part2
     {
         int pointer = 0;
     }
-
+    
     private enum Operand
     {
         ZERO(0),
@@ -83,14 +86,14 @@ public class Day17Part2
         SIX(6),
         SEVEN(7);
 
-        private final long literalOperand;
+        private final int literalOperand;
 
         Operand(final int literalOperand)
         {
             this.literalOperand = literalOperand;
         }
 
-        private static Operand fromValue(final long value)
+        private static Operand fromValue(final int value)
         {
             for (final Operand operand : values())
             {
@@ -102,38 +105,17 @@ public class Day17Part2
             throw new RuntimeException("Unrecognised value!!");
         }
 
-        private Function<Long, Long> getComboOperand(final Registers register)
+        private long getComboOperand(final Register register)
         {
             return switch (this)
             {
-                case ZERO, TWO, ONE, THREE -> (registerA) -> this.literalOperand;
-                case FOUR -> (registerA) -> registerA;
-                case FIVE -> (registerA) -> register.registerB;
-                case SIX -> (registerA) -> register.registerC;
+                case ZERO, TWO, ONE, THREE -> this.literalOperand;
+                case FOUR -> register.registerA;
+                case FIVE -> register.registerB;
+                case SIX -> register.registerC;
                 case SEVEN -> throw new RuntimeException("Invalid operand!!");
             };
         }
-    }
-
-    private static class Operation
-    {
-        private final Action action;
-        private final Function<Long, Long> result;
-
-        private Operation(final Action action, final Function<Long, Long> result)
-        {
-            this.action = action;
-            this.result = result;
-        }
-    }
-
-    private enum Action
-    {
-        SET_REGISTER_A,
-        SET_REGISTER_B,
-        SET_REGISTER_C,
-        MOVE_POINTER,
-        OUT;
     }
 
     private enum Instruction
@@ -147,14 +129,14 @@ public class Day17Part2
         SIX(6),
         SEVEN(7);
 
-        private final long value;
+        private final int value;
 
-        Instruction(final long value)
+        Instruction(final int value)
         {
             this.value = value;
         }
 
-        private static Instruction fromValue(final long value)
+        private static Instruction fromValue(final int value)
         {
             for (final Instruction instruction : values())
             {
@@ -166,21 +148,29 @@ public class Day17Part2
             throw new RuntimeException("Unrecognised value!!");
         }
 
-        private Operation operate(
+        private void operate(
                 final Operand operand,
-                final Registers registers)
+                final Register register,
+                final InstructionPointer pointer,
+                final List<Integer> out)
         {
-            return switch (this)
+            switch (this)
             {
-                case ZERO -> new Operation(Action.SET_REGISTER_A, (registerAValue) -> (long) (registerAValue / Math.pow(2, operand.getComboOperand(registers).apply(registerAValue))));
-                case ONE -> new Operation(Action.SET_REGISTER_B, (registerAValue) -> (registers.registerB ^ operand.literalOperand));
-                case TWO -> new Operation(Action.SET_REGISTER_B, (registerAValue) -> operand.getComboOperand(registers).apply(registerAValue) % 8);
-                case THREE -> new Operation(Action.MOVE_POINTER, (registerAValue) -> registerAValue != 0 ? operand.literalOperand : 0L);
-                case FOUR -> new Operation(Action.SET_REGISTER_B, (registerAValue) -> registers.registerB ^ registers.registerC);
-                case FIVE -> new Operation(Action.OUT, (registerAValue) -> operand.getComboOperand(registers).apply(registerAValue) % 8);
-                case SIX -> new Operation(Action.SET_REGISTER_B, (registerAValue) -> (long) (registerAValue / Math.pow(2, operand.getComboOperand(registers).apply(registerAValue))));
-                case SEVEN -> new Operation(Action.SET_REGISTER_C, (registerAValue) -> (long) (registerAValue / Math.pow(2, operand.getComboOperand(registers).apply(registerAValue))));
-            };
+                case ZERO -> register.registerA = (long) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
+                case ONE -> register.registerB = register.registerB ^ operand.literalOperand;
+                case TWO -> register.registerB = operand.getComboOperand(register) % 8;
+                case THREE ->
+                {
+                    if (register.registerA != 0)
+                    {
+                        pointer.pointer = operand.literalOperand;
+                    }
+                }
+                case FOUR -> register.registerB = register.registerB ^ register.registerC;
+                case FIVE -> out.add((int) (operand.getComboOperand(register) % 8));
+                case SIX -> register.registerB = (long) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
+                case SEVEN -> register.registerC = (long) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
+            }
         }
     }
 }

@@ -36,11 +36,11 @@ public class Day17Part1
 
     private static final class Register
     {
-        int registerA;
-        int registerB;
-        int registerC;
+        long registerA;
+        long registerB;
+        long registerC;
 
-        public Register(final int registerA, final int registerB, final int registerC)
+        public Register(final long registerA, final long registerB, final long registerC)
         {
             this.registerA = registerA;
             this.registerB = registerB;
@@ -52,7 +52,7 @@ public class Day17Part1
     {
         int pointer = 0;
     }
-    
+
     private enum Operand
     {
         ZERO(0),
@@ -83,7 +83,7 @@ public class Day17Part1
             throw new RuntimeException("Unrecognised value!!");
         }
 
-        private int getComboOperand(final Register register)
+        private long getComboOperand(final Register register)
         {
             return switch (this)
             {
@@ -134,7 +134,7 @@ public class Day17Part1
         {
             switch (this)
             {
-                case ZERO -> register.registerA = (int) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
+                case ZERO -> register.registerA = (long) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
                 case ONE -> register.registerB = register.registerB ^ operand.literalOperand;
                 case TWO -> register.registerB = operand.getComboOperand(register) % 8;
                 case THREE ->
@@ -145,9 +145,9 @@ public class Day17Part1
                     }
                 }
                 case FOUR -> register.registerB = register.registerB ^ register.registerC;
-                case FIVE -> out.add(operand.getComboOperand(register) % 8);
-                case SIX -> register.registerB = (int) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
-                case SEVEN -> register.registerC = (int) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
+                case FIVE -> out.add((int) (operand.getComboOperand(register) % 8));
+                case SIX -> register.registerB = (long) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
+                case SEVEN -> register.registerC = (long) (register.registerA / Math.pow(2, operand.getComboOperand(register)));
             }
         }
     }
